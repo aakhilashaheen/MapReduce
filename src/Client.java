@@ -63,7 +63,7 @@ public class Client {
             int n = scan.nextInt();
             List<String> inputFiles = new ArrayList<>();
             for( int i = 0; i < n ; i++){
-                inputFiles.add(scan.next());
+                inputFiles.add("input_dir/" + scan.next());
             }
             client.submitJob(inputFiles);
         }
@@ -82,8 +82,8 @@ public class Client {
         for(String inputFile : inputFiles){
             File file = new File(inputFile);
             if(!file.exists() || file.isDirectory()) {
-                System.out.println("Not a file or is a directory"+file.getName());
-            }else{
+                System.out.println("Not a file or is a directory" + file.getName());
+            } else {
                 legitFiles.add(inputFile);
             }
         }
@@ -93,8 +93,7 @@ public class Client {
         if(result.equals("NULL")) {
             System.out.println("Job failed");
             return false;
-        }
-        else {
+        } else {
             System.out.println("Output file located at :\n    " + result); //just the filename, no paths allowed
             return true;
         }
