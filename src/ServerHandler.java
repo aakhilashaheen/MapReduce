@@ -28,6 +28,7 @@ public class ServerHandler implements ServerService.Iface{
     @Override
     public String mapReduceJob(List<String> inputfileNames) throws TException {
         System.out.println("Received list to mapreduce");
+        inputfileNames.forEach(System.out::println);
         return null;
     }
     public ServerHandler(Integer port) throws Exception {

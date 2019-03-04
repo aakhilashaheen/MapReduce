@@ -81,8 +81,8 @@ public class Worker implements ComputeNodeService.Iface{
             System.out.println("IP Address is " + InetAddress.getLocalHost().toString());
             String serverIP = args[0];
             Integer serverPort = Integer.parseInt(args[1]);
-            Double temp = new Double(args[3]);
-            double chanceToFail = temp.doubleValue();
+            //Double temp = new Double(args[3]);
+            double chanceToFail = 0.0;
             //port number used by this node.
             Integer port = Integer.parseInt(args[2]);
 
