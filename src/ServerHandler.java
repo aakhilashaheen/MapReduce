@@ -8,8 +8,11 @@ import org.apache.thrift.transport.TTransportFactory;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ServerHandler implements ServerService.Iface{
     private static int serverPort;
@@ -17,7 +20,8 @@ public class ServerHandler implements ServerService.Iface{
     private static final String int_dir = "intermediate_dir/"; //Intermediate Folder
     private static final String out_dir = "output_dir/";
     Machine self;
-    ConcurrentLinkedQueue<Machine> computeNodes = new ConcurrentLinkedQueue<>();
+    List<Machine> computeNodes = new ArrayList<>();
+    ConcurrentLinkedQueue<String> inputFiles = new ConcurrentLinkedQueue<>();
     @Override
     public int enroll(Machine machine) throws TException {
        computeNodes.add(machine);
@@ -28,10 +32,27 @@ public class ServerHandler implements ServerService.Iface{
     @Override
     public String mapReduceJob(List<String> inputfileNames) throws TException {
         System.out.println("Received list to mapreduce");
+        for(String fileName : inputfileNames){
+            inputFiles.add(fileName);
+        }
+        submitMapJobsToComputeNodes();
+        //Split the list of files into multiple tasks and send them to the worker nodes
         return null;
     }
+
+    public void submitMapJobsToComputeNodes(){
+        ExecutorService executor = Executors.newFixedThreadPool(5);
+        for (int i = 0; i < 10; i++) {
+            Runnable worker = new MapTaskSender(computeNodes,inputFiles);
+            executor.execute(worker);
+        }
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+        }
+        System.out.println("Finished all threads");
+    }
+
     public ServerHandler(Integer port) throws Exception {
-        this.computeNodes = new ConcurrentLinkedQueue<Machine>();
        /* this.inProgress = new HashMap<>();
         this.tasks = new ConcurrentLinkedQueue<>();
         this.completed = new ConcurrentLinkedQueue<>();

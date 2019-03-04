@@ -14,7 +14,7 @@ public class MapTaskSender implements Runnable {
     private List<Machine> nodes;
     private ConcurrentLinkedQueue<String> inputFiles;
 
-    public MapTaskSender(ArrayList<Machine> computeNodes, ConcurrentLinkedQueue<String> inputFiles){
+    public MapTaskSender(List<Machine> computeNodes, ConcurrentLinkedQueue<String> inputFiles){
         this.nodes = computeNodes;
         this.inputFiles = inputFiles;
     }
