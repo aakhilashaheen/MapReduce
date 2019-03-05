@@ -28,13 +28,21 @@ public class MapTask extends Thread {
             //System.out.println("Analyzing file" + this.inputFile);
             String line = null;
             while((line = br.readLine()) != null) {
-                String[] words = line.split("\\W");
+                String[] words = line.replaceAll("--"," ").split("[^a-zA-Z\\-']+");
                 for(int i = 0; i < words.length; ++i) {
-                    String word = words[i].toUpperCase();
-                    if(positives.contains(word))
-                        ++pSentiment;
-                    else if(negatives.contains(word))
-                        ++nSentiment;
+                    String word = words[i].toLowerCase().replaceAll("[^a-zA-Z\\-']","");
+
+                    if(word.contains("'")){
+
+                        word = word.substring(0,word.indexOf("'"));
+                    }
+                    word.trim();
+                    System.out.println(word);
+
+                    if(!word.equals("") && positives.contains(word))
+                        pSentiment++;
+                    else if(!word.equals("") &&negatives.contains(word))
+                        nSentiment++;
                 }
             }
             br.close();
@@ -59,4 +67,5 @@ public class MapTask extends Thread {
     public String getOutputFile() {
         return this.outputFile;
     }
+
 }

@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -5,11 +8,36 @@ public class TaskQueueWatcher extends Thread {
     private final ConcurrentLinkedQueue<String> requests; //synchronized
     private final Worker instance;
     Random rand;
+    private static HashSet<String> positives,negatives;
 
     public TaskQueueWatcher(Worker instance,ConcurrentLinkedQueue<String> tasks) {
         this.requests = tasks;
         this.instance = instance;
         rand = new Random();
+
+        //Initiate positive and negative files
+        positives = new HashSet<>();
+        try {
+            FileReader fr = new FileReader("positive.txt");
+            BufferedReader br = new BufferedReader(fr);
+            String line = null;
+            while((line = br.readLine()) != null) {
+                positives.add(line.toUpperCase().replaceAll("\n", "").replaceAll("\r",""));
+            }
+            fr.close();
+        } catch (Exception e) { e.printStackTrace(); }
+
+        negatives = new HashSet<>();
+        try {
+            FileReader fr = new FileReader("negative.txt");
+            BufferedReader br = new BufferedReader(fr);
+            String line = null;
+            while((line = br.readLine()) != null) {
+                negatives.add(line.toUpperCase().replaceAll("\n", "").replaceAll("\r",""));
+            }
+            fr.close();
+        } catch (Exception e) { e.printStackTrace(); }
+
     }
 
 
@@ -27,8 +55,8 @@ public class TaskQueueWatcher extends Thread {
 
                 if(task != null){
                     injectDelay();
-//                    SortMerge handler = new SortMerge(task);
-//                    handler.start();
+                  MapTask handler = new MapTask(task,positives,negatives);
+                  handler.start();
                 }
             } catch(Exception e) {
                 e.printStackTrace();

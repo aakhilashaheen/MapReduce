@@ -58,11 +58,11 @@ public class Worker implements ComputeNodeService.Iface{
 
         taskQueue = new ConcurrentLinkedQueue<>();
         this.loadProbability = loadProbability;
-
+        TaskQueueWatcher watcher = new TaskQueueWatcher(this,taskQueue);
+        watcher.start();
         // call enroll on superNode to enroll.
         protocol = serverClient.enroll(self);
         System.out.println("Worker node protocol received from server");
-        taskQueue = new ConcurrentLinkedQueue<>();
 
         serverTransport.close();
     }
