@@ -51,10 +51,10 @@ public class TaskQueueWatcher extends Thread {
                 }
 
                 //queue is no longer empty
-                task = requests.remove();
-
+                task = (String)requests.remove();
+                System.out.println(task);
                 if(task != null){
-                    injectDelay();
+                   // injectDelay();
                   MapTask handler = new MapTask(task,positives,negatives);
                   handler.start();
                 }
