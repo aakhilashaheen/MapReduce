@@ -30,14 +30,11 @@ public class MapTask extends Thread {
             while((line = br.readLine()) != null) {
                 String[] words = line.replaceAll("--"," ").split("[^a-zA-Z\\-']+");
                 for(int i = 0; i < words.length; ++i) {
-                    String word = words[i].toLowerCase().replaceAll("[^a-zA-Z\\-']","");
-
-                    if(word.contains("'")){
-
-                        word = word.substring(0,word.indexOf("'"));
+                    String word = words[i].toLowerCase().replaceAll("[^a-zA-Z\\-']","").trim();
+                    if(word.contains("'")) {
+                        word = word.substring(0, word.indexOf("'"));
                     }
-                    word.trim();
-                    System.out.println(word);
+                    //System.out.println(word);
 
                     if(!word.equals("") && positives.contains(word))
                         pSentiment++;
@@ -49,7 +46,7 @@ public class MapTask extends Thread {
         } catch (Exception e) { }
 
         this.outputFile = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
-                + "_" + Instant.now().toString() + ".txt";
+	    + "_" + Instant.now().toString() + ".txt";
         //System.out.println("I'm going to write to " + this.outputFile);
         try {
             FileWriter fw = new FileWriter("intermediate_dir/" + this.outputFile);
@@ -58,8 +55,10 @@ public class MapTask extends Thread {
             //System.out.println("Positive: " + Double.toString(pSentiment) +
             //        ", Negative: " + Double.toString(nSentiment) + ", Total: " + Double.toString(pSentiment + nSentiment));
             double sentiment = (pSentiment - nSentiment)/(pSentiment + nSentiment);
-            bw.write(this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
-                    + "," + Double.toString(sentiment));
+            String output = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
+                    + "," + Double.toString(sentiment);
+            System.out.println("Output: " + output);
+            bw.write(output);
             bw.close();
         } catch (Exception e) { }
     }
