@@ -7,6 +7,7 @@ import org.apache.thrift.transport.*;
 
 import java.net.InetAddress;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Worker implements ComputeNodeService.Iface{
@@ -20,9 +21,20 @@ public class Worker implements ComputeNodeService.Iface{
     public String mapTask(String inputFilename) throws TException {
         //Received the task for mapping
         System.out.println("Worker received the file for mapping "+inputFilename);
-        return "output.txt";
+        String outputfileName = "";
+        if(!shouldRejectTheTask()){
+            synchronized (taskQueue){
+                taskQueue.add(inputFilename);
+                outputfileName = inputFilename+"sentiment";
+            }
+        }
+        return outputfileName;
     }
 
+    public boolean shouldRejectTheTask(){
+        Random rand = new Random();
+        return(rand.nextDouble() > loadProbability ? false : true);
+    }
     @Override
     public String sortTask(List<String> intermediateFilenames) throws TException {
         return "";
@@ -44,7 +56,7 @@ public class Worker implements ComputeNodeService.Iface{
         self.ipAddress = InetAddress.getLocalHost().getHostName().toString();
         self.port = port;
 
-
+        taskQueue = new ConcurrentLinkedQueue<>();
         this.loadProbability = loadProbability;
 
         // call enroll on superNode to enroll.
@@ -85,7 +97,6 @@ public class Worker implements ComputeNodeService.Iface{
             Double loadProbability = new Double(args[3]);
             //port number used by this node.
             Integer port = Integer.parseInt(args[2]);
-
             Worker server = new Worker(serverIP, serverPort,port, loadProbability);
 
             //spin up server
