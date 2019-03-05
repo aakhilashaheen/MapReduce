@@ -27,26 +27,31 @@ public class MapTaskSender implements Runnable {
     }
 
     private void sendRpcCall() {
-        try {
-            Random rand = new Random();
-            int index = rand.nextInt(nodes.size());
-            Machine m = nodes.get(index);
-            TTransport computeTransport = new TSocket(m.ipAddress, m.port);
-            computeTransport.open();
-            TProtocol computeProtocol = new TBinaryProtocol(new TFramedTransport(computeTransport));
-            ComputeNodeService.Client computeNode  = new ComputeNodeService.Client(computeProtocol);
-            if(!inputFiles.isEmpty()){
-               String inputFile = (String)inputFiles.remove();
-               String outputFile =  computeNode.mapTask(inputFile);
-               if(outputFile == null){
-                   inputFiles.add(inputFile);
-               }
+        String outputFile = "";
+        String inputFile ;
+            if(!inputFiles.isEmpty()) {
+                inputFile = inputFiles.remove();
+                if(inputFile!= null){
+                    while(outputFile.equals("")){
+                        Random rand = new Random();
+                        int index = rand.nextInt(nodes.size());
+                        Machine m = nodes.get(index);
+                        try{
+                            TTransport computeTransport = new TSocket(m.ipAddress, m.port);
+                            computeTransport.open();
+                            TProtocol computeProtocol = new TBinaryProtocol(new TFramedTransport(computeTransport));
+                            ComputeNodeService.Client computeNode  = new ComputeNodeService.Client(computeProtocol);
+                            outputFile = computeNode.mapTask(inputFile);
+                            computeTransport.close();
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
+                }
+
+
+
+                }
             }
 
-            computeTransport.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

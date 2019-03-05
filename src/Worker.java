@@ -14,22 +14,23 @@ public class Worker implements ComputeNodeService.Iface{
 
     Machine self;
     Machine server;
-    double chanceToFail = 0.0;
+    double loadProbability = 0.0;
+    int protocol = 0 ; //Default 0 : random scheduling protocol, 1: load balancing protocol
     ConcurrentLinkedQueue<String> taskQueue;
 
     @Override
     public String mapTask(String inputFilename) throws TException {
         //Received the task for mapping
-        System.out.println("Received the file for mapping"+inputFilename);
-        return null;
+        System.out.println("Worker received the file for mapping "+inputFilename);
+        return "output.txt";
     }
 
     @Override
     public String sortTask(List<String> intermediateFilenames) throws TException {
-        return null;
+        return "";
     }
     /* Constructor for a Server, a Thrift connection is made to the server as well */
-    public Worker(String serverIP, Integer serverPort, Integer port, double chanceToFail) throws Exception {
+    public Worker(String serverIP, Integer serverPort, Integer port, double loadProbability) throws Exception {
         // connect to the server as a client
         TTransport serverTransport = new TSocket(serverIP, serverPort);
         serverTransport.open();
@@ -46,14 +47,12 @@ public class Worker implements ComputeNodeService.Iface{
         self.port = port;
 
 
-        this.chanceToFail = chanceToFail;
+        this.loadProbability = loadProbability;
 
         // call enroll on superNode to enroll.
-        int protocol = serverClient.enroll(self);
+        protocol = serverClient.enroll(self);
         System.out.println("Worker node protocol received from server");
         taskQueue = new ConcurrentLinkedQueue<>();
-
-
 
         serverTransport.close();
     }
@@ -78,19 +77,18 @@ public class Worker implements ComputeNodeService.Iface{
     }
     public static void main(String[] args) {
         if(args.length < 3) {
-            System.err.println("Usage: java ComputeNodeHandler <serverIP> <serverPort> <port>");
+            System.err.println("Usage: java ComputeNodeHandler <serverIP> <serverPort> <port> <loadProbability>");
             return;
         }
         try {
             System.out.println("IP Address is " + InetAddress.getLocalHost().toString());
             String serverIP = args[0];
             Integer serverPort = Integer.parseInt(args[1]);
-           // Double temp = new Double(args[3]);
-            double chanceToFail = 0.0;
+            Double loadProbability = new Double(args[3]);
             //port number used by this node.
             Integer port = Integer.parseInt(args[2]);
 
-            Worker server = new Worker(serverIP, serverPort,port, chanceToFail);
+            Worker server = new Worker(serverIP, serverPort,port, loadProbability);
 
             //spin up server
             server.start();

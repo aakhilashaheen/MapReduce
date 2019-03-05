@@ -39,16 +39,20 @@ public class ServerHandler implements ServerService.Iface{
         }
 
         submitMapJobsToComputeNodes();
+
         //Split the list of files into multiple tasks and send them to the worker nodes
-        return null;
+        return "output_dir";
     }
 
     public void submitMapJobsToComputeNodes(){
         ExecutorService executor = Executors.newFixedThreadPool(5);
-        for (int i = 0; i < 10; i++) {
+
+
+        while(!inputFiles.isEmpty()){
             Runnable worker = new MapTaskSender(computeNodes,inputFiles);
             executor.execute(worker);
         }
+
         executor.shutdown();
         while (!executor.isTerminated()) {
         }
