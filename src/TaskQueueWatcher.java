@@ -22,7 +22,7 @@ public class TaskQueueWatcher extends Thread {
             BufferedReader br = new BufferedReader(fr);
             String line = null;
             while((line = br.readLine()) != null) {
-                positives.add(line.toUpperCase().replaceAll("\n", "").replaceAll("\r",""));
+                positives.add(line.toLowerCase().replaceAll("\n", "").replaceAll("\r",""));
             }
             fr.close();
         } catch (Exception e) { e.printStackTrace(); }
@@ -33,7 +33,7 @@ public class TaskQueueWatcher extends Thread {
             BufferedReader br = new BufferedReader(fr);
             String line = null;
             while((line = br.readLine()) != null) {
-                negatives.add(line.toUpperCase().replaceAll("\n", "").replaceAll("\r",""));
+                negatives.add(line.toLowerCase().replaceAll("\n", "").replaceAll("\r",""));
             }
             fr.close();
         } catch (Exception e) { e.printStackTrace(); }

@@ -33,7 +33,7 @@ public class Worker implements ComputeNodeService.Iface{
                 System.out.println("Map tasks processed " + mapTasksProcessd.incrementAndGet());
                 outputfileName = inputFilename+"sentiment";
             }
-        }else{
+        } else {
             System.out.println("Map tasks rejected " + mapTasksRejected.incrementAndGet());
         }
         return outputfileName;
@@ -45,8 +45,14 @@ public class Worker implements ComputeNodeService.Iface{
     }
     @Override
     public String sortTask(List<String> intermediateFilenames) throws TException {
-        return "";
+        //Received the task for mapping
+        //if(shouldRejectTheTask())
+        //    return "";
+        SortTask task = new SortTask(intermediateFilenames);
+        task.sortFiles();
+        return task.getOutputFile();
     }
+
     /* Constructor for a Server, a Thrift connection is made to the server as well */
     public Worker(String serverIP, Integer serverPort, Integer port, double loadProbability) throws Exception {
         // connect to the server as a client

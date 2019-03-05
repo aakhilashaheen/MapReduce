@@ -17,7 +17,7 @@ public class LogicTest {
 	//}
 	////System.out.println(word.indexOf("'"));
 	//
-	//System.out.println(word);
+	//System.out.println(wqord);
 	//}
 
 	positives = new HashSet<>();

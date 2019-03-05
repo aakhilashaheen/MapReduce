@@ -44,7 +44,7 @@ public class MapTask extends Thread {
                 }
             }
             br.close();
-        } catch (Exception e) { }
+        } catch (Exception e) { e.printStackTrace(); }
 
         this.outputFile = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
 	    + "_" + Instant.now().toString() + ".txt";
@@ -53,8 +53,8 @@ public class MapTask extends Thread {
             FileWriter fw = new FileWriter("intermediate_dir/" + this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
             //System.out.println("Storing " + this.inputFile + " analysis in " + this.outputFile);
-            //System.out.println("Positive: " + Double.toString(pSentiment) +
-            //        ", Negative: " + Double.toString(nSentiment) + ", Total: " + Double.toString(pSentiment + nSentiment));
+            System.out.println("Positive: " + Double.toString(pSentiment) +
+                    ", Negative: " + Double.toString(nSentiment) + ", Total: " + Double.toString(pSentiment + nSentiment));
             double sentiment = (pSentiment - nSentiment)/(pSentiment + nSentiment);
             String output = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
                     + "," + Double.toString(sentiment);
