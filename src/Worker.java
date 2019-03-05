@@ -97,6 +97,7 @@ public class Worker implements ComputeNodeService.Iface{
             Double loadProbability = new Double(args[3]);
             //port number used by this node.
             Integer port = Integer.parseInt(args[2]);
+
             Worker server = new Worker(serverIP, serverPort,port, loadProbability);
 
             //spin up server
