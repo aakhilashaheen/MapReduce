@@ -20,21 +20,21 @@ public class MapTask extends Thread {
     }
 
     public void countSentiment() {
-        int sentiment = 0;
+        double pSentiment = 0, nSentiment = 0;
         try {
             FileReader fr = new FileReader(this.inputFile);
             BufferedReader br = new BufferedReader(fr);
 
-            System.out.println("Analyzing file" + this.inputFile);
+            //System.out.println("Analyzing file" + this.inputFile);
             String line = null;
             while((line = br.readLine()) != null) {
                 String[] words = line.split("\\W");
                 for(int i = 0; i < words.length; ++i) {
                     String word = words[i].toUpperCase();
                     if(positives.contains(word))
-                        ++sentiment;
+                        ++pSentiment;
                     else if(negatives.contains(word))
-                        --sentiment;
+                        ++nSentiment;
                 }
             }
             br.close();
@@ -42,13 +42,16 @@ public class MapTask extends Thread {
 
         this.outputFile = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
                 + "_" + Instant.now().toString() + ".txt";
-        System.out.println("I'm going to write to " + this.outputFile);
+        //System.out.println("I'm going to write to " + this.outputFile);
         try {
             FileWriter fw = new FileWriter("intermediate_dir/" + this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
-            System.out.println("Storing " + this.inputFile + " analysis in " + this.outputFile);
+            //System.out.println("Storing " + this.inputFile + " analysis in " + this.outputFile);
+            //System.out.println("Positive: " + Double.toString(pSentiment) +
+            //        ", Negative: " + Double.toString(nSentiment) + ", Total: " + Double.toString(pSentiment + nSentiment));
+            double sentiment = (pSentiment - nSentiment)/(pSentiment + nSentiment);
             bw.write(this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
-                    + "," + Integer.toString(sentiment));
+                    + "," + Double.toString(sentiment));
             bw.close();
         } catch (Exception e) { }
     }
