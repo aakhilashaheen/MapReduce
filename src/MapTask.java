@@ -40,14 +40,15 @@ public class MapTask extends Thread {
             br.close();
         } catch (Exception e) { }
 
-        this.outputFile = "intermediate_dir/" + this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
+        this.outputFile = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
                 + "_" + Instant.now().toString() + ".txt";
         System.out.println("I'm going to write to " + this.outputFile);
         try {
-            FileWriter fw = new FileWriter(this.outputFile);
+            FileWriter fw = new FileWriter("intermediate_dir/" + this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
             System.out.println("Storing " + this.inputFile + " analysis in " + this.outputFile);
-            bw.write(this.inputFile + "," + Integer.toString(sentiment));
+            bw.write(this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
+                    + "," + Integer.toString(sentiment));
             bw.close();
         } catch (Exception e) { }
     }

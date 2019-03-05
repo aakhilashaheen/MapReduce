@@ -4,4 +4,9 @@ class Pair<FirstType, SecondType> {
     public Pair(FirstType f, SecondType s) {
         this.first = f; this.second = s;
     }
+
+    @Override
+    public String toString() {
+        return "Pair(" + this.first.toString() + ", " + this.second.toString() + ")";
+    }
 }

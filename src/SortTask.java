@@ -21,22 +21,28 @@ public class SortTask extends Thread{
 
     public void sortFiles() {
         LinkedList<Pair<String, Integer>> files = new LinkedList<Pair<String, Integer>>();
-        for(String filename : intermediateFiles)
+        for(String filename : intermediateFiles) {
             try {
-                FileReader fr = new FileReader(filename);
+                FileReader fr = new FileReader("intermediate_dir/" + filename);
                 BufferedReader br = new BufferedReader(fr);
+                System.out.println("Reading file " + filename);
                 String line = br.readLine();
                 int idx = line.indexOf(",");
-                Pair<String, Integer> pair = new Pair<>(line.substring(0, idx), Integer.parseInt(line.substring(idx+1)));
+                Pair<String, Integer> pair = new Pair<>(line.substring(0, idx), Integer.parseInt(line.substring(idx + 1)));
                 files.add(pair);
+                System.out.println(pair.toString());
             } catch (Exception e) { }
+        }
         Collections.sort(files, (p1, p2) -> { return p1.second - p2.second; });
         this.outputFile = "output_dir/" + Instant.now().toString() + ".txt";
         try {
             FileWriter fw = new FileWriter(this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
-            for(Pair<String, Integer> pair : files)
-                fw.write(pair.first + "\n");
+            for(Pair<String, Integer> pair : files) {
+                System.out.println(pair.toString());
+                bw.write(pair.first + "\n");
+            }
+            bw.close();
         } catch (Exception e) { }
     }
 
