@@ -24,8 +24,8 @@ public class MapTask extends Thread {
         try {
             FileReader fr = new FileReader(this.inputFile);
             BufferedReader br = new BufferedReader(fr);
-
-            //System.out.println("Analyzing file" + this.inputFile);
+            System.out.println("Hello I'm the map task");
+            System.out.println("Analyzing file " + this.inputFile);
             String line = null;
             while((line = br.readLine()) != null) {
                 String[] words = line.replaceAll("--"," ").split("[^a-zA-Z\\-']+");
@@ -39,7 +39,7 @@ public class MapTask extends Thread {
 
                     if(!word.equals("") && positives.contains(word))
                         pSentiment++;
-                    else if(!word.equals("") &&negatives.contains(word))
+                    else if(!word.equals("") && negatives.contains(word))
                         nSentiment++;
                 }
             }
@@ -48,7 +48,7 @@ public class MapTask extends Thread {
 
         this.outputFile = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
 	    + "_" + Instant.now().toString() + ".txt";
-        //System.out.println("I'm going to write to " + this.outputFile);
+        System.out.println("I'm going to write to " + this.outputFile);
         try {
             FileWriter fw = new FileWriter("intermediate_dir/" + this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
@@ -56,6 +56,7 @@ public class MapTask extends Thread {
             System.out.println("Positive: " + Double.toString(pSentiment) +
                     ", Negative: " + Double.toString(nSentiment) + ", Total: " + Double.toString(pSentiment + nSentiment));
             double sentiment = (pSentiment - nSentiment)/(pSentiment + nSentiment);
+            System.out.println("This is the sentiment!!!!!!!" +sentiment);
             String output = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
                     + "," + Double.toString(sentiment);
             System.out.println("Output: " + output);
