@@ -36,7 +36,7 @@ public class MapTaskSender implements Runnable {
             TProtocol computeProtocol = new TBinaryProtocol(new TFramedTransport(computeTransport));
             ComputeNodeService.Client computeNode  = new ComputeNodeService.Client(computeProtocol);
             if(!inputFiles.isEmpty()){
-                String inputFile = (String)inputFiles.remove();
+               String inputFile = (String)inputFiles.remove();
                String outputFile =  computeNode.mapTask(inputFile);
                if(outputFile == null){
                    inputFiles.add(inputFile);

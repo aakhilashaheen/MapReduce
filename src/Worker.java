@@ -7,6 +7,7 @@ import org.apache.thrift.transport.*;
 
 import java.net.InetAddress;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Worker implements ComputeNodeService.Iface{
@@ -15,6 +16,7 @@ public class Worker implements ComputeNodeService.Iface{
     Machine server;
     double chanceToFail = 0.0;
     ConcurrentLinkedQueue<String> taskQueue;
+
     @Override
     public String mapTask(String inputFilename) throws TException {
         //Received the task for mapping
