@@ -57,14 +57,22 @@ public class Client {
 
             System.out.println("Contacted server at " + serverInfo.ipAddress + ":" + serverInfo.port);
             System.out.println("\n\n -------- Welcome to the Terminal for Map Reduce --------\n\n");
-            Scanner scan = new Scanner(System.in);
-            System.out.println("Enter the number of files to process");
-
+    /*        Scanner scan = new Scanner(System.in);
+            System.out.println("Enter the number of files to process");*/
+/*
             int n = scan.nextInt();
             List<String> inputFiles = new ArrayList<>();
             for( int i = 0; i < n ; i++){
                 inputFiles.add("input_dir/" + scan.next());
+            }*/
+
+            File[] listOfFiles = (new File("input_dir")).listFiles();
+            List<String> inputFiles = new ArrayList<>();
+            for(File file : listOfFiles) {
+                inputFiles.add("input_dir/" + file.getName());
             }
+
+
             client.submitJob(inputFiles);
         }
         catch(Exception e) {

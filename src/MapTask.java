@@ -37,7 +37,7 @@ public class MapTask extends Thread {
                         word = word.substring(0,word.indexOf("'"));
                     }
                     word.trim();
-                    System.out.println(word);
+                    //System.out.println(word);
 
                     if(!word.equals("") && positives.contains(word))
                         pSentiment++;

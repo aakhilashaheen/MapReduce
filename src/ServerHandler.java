@@ -50,6 +50,7 @@ public class ServerHandler implements ServerService.Iface{
 
         while(!inputFiles.isEmpty()){
             Runnable worker = new MapTaskSender(computeNodes,inputFiles);
+            System.out.println(inputFiles.size());
             executor.execute(worker);
         }
 

@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Worker implements ComputeNodeService.Iface{
 
@@ -17,16 +18,23 @@ public class Worker implements ComputeNodeService.Iface{
     double loadProbability = 0.0;
     int protocol = 0 ; //Default 0 : random scheduling protocol, 1: load balancing protocol
     ConcurrentLinkedQueue<String> taskQueue;
+    AtomicInteger mapTasksReceived =  new AtomicInteger(0);
+    AtomicInteger mapTasksRejected = new AtomicInteger(0);
+    AtomicInteger mapTasksProcessd = new AtomicInteger(0);
     @Override
     public String mapTask(String inputFilename) throws TException {
         //Received the task for mapping
         System.out.println("Worker received the file for mapping "+inputFilename);
         String outputfileName = "";
+        System.out.println("Map tasks received " + mapTasksReceived.incrementAndGet());
         if(!shouldRejectTheTask()){
             synchronized (taskQueue){
                 taskQueue.add(inputFilename);
+                System.out.println("Map tasks processed " + mapTasksProcessd.incrementAndGet());
                 outputfileName = inputFilename+"sentiment";
             }
+        }else{
+            System.out.println("Map tasks rejected " + mapTasksRejected.incrementAndGet());
         }
         return outputfileName;
     }
