@@ -7,6 +7,6 @@ class Pair<FirstType, SecondType> {
 
     @Override
     public String toString() {
-        return "Pair(" + this.first.toString() + ", " + this.second.toString() + ")";
+        return this.first.toString() + " " + this.second.toString();
     }
 }
