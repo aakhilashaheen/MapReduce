@@ -9,7 +9,6 @@ import java.io.*;
 import java.util.*;
 import java.time.*;
 import java.lang.Thread;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MapTask extends Thread {
@@ -18,20 +17,20 @@ public class MapTask extends Thread {
     private String inputFile, outputFile;
     private static String input_dir = "input_dir/";
     private static String intermediate_dir = "intermediate_dir/";
-    private static String logging_dir = "logging_dir";
+    private static String logging_dir = "logging_dir/";
     private static String inputFileReceived = "";
-    private AtomicInteger timeTakenToProcess;
+    private static AtomicLong timeTakenToProcess;
     private static Node server;
-    private static Node worker;
+    private Node worker;
     private double loadProbability;
-    public MapTask(String iF, HashSet<String> p, HashSet<String> n, Node server, Node worker, double loadProbability, AtomicInteger timeTakenToProcessRequest) {
+    public MapTask(String iF, HashSet<String> p, HashSet<String> n, Node server, Node worker, double loadProbability, AtomicLong timeTakenToProcessRequest) {
         this.positives = p;
         this.negatives = n;
         this.inputFile = input_dir+iF;
         this.server = server;
         this.worker = worker;
         inputFileReceived = iF;
-        this.timeTakenToProcess = timeTakenToProcessRequest;
+        timeTakenToProcess = timeTakenToProcessRequest;
         this.loadProbability = loadProbability;
     }
 
@@ -57,7 +56,7 @@ public class MapTask extends Thread {
                     if(word.contains("'")) {
                         word = word.substring(0, word.indexOf("'"));
                     }
-                    word.trim();
+                    word = word.trim();
                     //System.out.println(word);
                     wordCount++;
                     if(!word.equals("") && positives.contains(word))
@@ -87,21 +86,24 @@ public class MapTask extends Thread {
             server.completedMapTask(inputFileReceived, outputFile);
             serverTransport.close();
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         long endTime = System.currentTimeMillis();
+
+        String log = "Worker: " + this.worker.ipAddress + ":" + Integer.toString(this.worker.port) + ", " +
+                "File: " + this.inputFile + ", " +
+                "Word count: " + wordCount + ", " +
+                "Elapsed time: " + Long.toString(endTime - startTime) + "\n";
+//        String log = "Worker: " + this.worker.ipAddress;
+        System.out.println(log);
         try {
-            FileWriter fw = new FileWriter(this.logging_dir + this.outputFile);
+            FileWriter fw = new FileWriter(logging_dir + this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
-            String log = "Worker: " + this.worker.ipAddress + ":" + Integer.toString(this.worker.port) + ", " +
-                    "File: " + this.inputFile + ", " +
-                    "Word count: " + wordCount + ", " +
-                    "Elapsed time: " + Long.toString(endTime - startTime) + "\n";
             bw.write(log);
 
         } catch (Exception e) { e.printStackTrace(); }
 
-        this.timeTakenToProcess.addAndGet((int) (endTime-startTime));
+        timeTakenToProcess.addAndGet(endTime-startTime);
     }
 
     public String getOutputFile() {
@@ -112,11 +114,11 @@ public class MapTask extends Thread {
         double roll = new Random().nextDouble();
         if(roll < this.loadProbability){
             try {
-                Thread.sleep(10);
+                Thread.sleep(3000);
+                System.out.println("Injecting delay");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
-
 }

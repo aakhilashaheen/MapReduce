@@ -8,7 +8,7 @@ import org.apache.thrift.transport.*;
 import java.net.InetAddress;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 /*The entry point for worker node which handles map and sort tasks
 
  */
@@ -19,11 +19,11 @@ public class WorkerHandler implements WorkerNodeService.Iface{
     double loadProbability = 0.0;
     int protocol = 0 ; //Default 0 : random scheduling protocol, 1: load balancing protocol
     ConcurrentLinkedQueue<String> taskQueue;
-    AtomicInteger mapTasksReceived =  new AtomicInteger(0);
-    AtomicInteger mapTasksRejected = new AtomicInteger(0);
-    AtomicInteger mapTasksProcessd = new AtomicInteger(0);
-    AtomicInteger timeTakenToMap = new AtomicInteger(0);
-    AtomicInteger timeTakenToSort = new AtomicInteger(0);
+    AtomicLong mapTasksReceived =  new AtomicLong(0);
+    AtomicLong mapTasksRejected = new AtomicLong(0);
+    AtomicLong mapTasksProcessd = new AtomicLong(0);
+    AtomicLong timeTakenToMap = new AtomicLong(0);
+    AtomicLong timeTakenToSort = new AtomicLong(0);
 
     /*This takes the file for mapping and either processes it or rejects it.
     If being processed, it places it into a worker queue for processing

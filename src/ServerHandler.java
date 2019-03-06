@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ServerHandler implements ServerService.Iface{
     private static int serverPort;
@@ -22,7 +22,7 @@ public class ServerHandler implements ServerService.Iface{
     private static final String intermediateDirectoryPath = "intermediate_dir";
     private static final String outputDirectoryPath = "output_dir";
     private int countOfMapJobsPerInput = 0; // counter for the number of tasks required
-    private AtomicInteger countOfCompletedMapJobsPerInput = new AtomicInteger(0); // Synchronised counter for completed tasks
+    private AtomicLong countOfCompletedMapJobsPerInput = new AtomicLong(0); // Synchronised counter for completed tasks
     private ExecutorService executor = Executors.newFixedThreadPool(10);
     private String intermediateDirectoryForJobInProcess = "";
     private static String outFileForJob = "";

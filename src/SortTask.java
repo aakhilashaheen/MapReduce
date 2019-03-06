@@ -8,16 +8,16 @@ import java.io.*;
 import java.nio.Buffer;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SortTask extends Thread{
     private String intermediateDirectory;
     private String outputFile;
     private Node server;
     private double loadProbability ;
-    private AtomicInteger timeTakenToPrcess;
+    private AtomicLong timeTakenToPrcess;
 
-    public SortTask(String intermediateDirectory, Node server, double loadProbability, AtomicInteger timeTakenToProcess) {
+    public SortTask(String intermediateDirectory, Node server, double loadProbability, AtomicLong timeTakenToProcess) {
         this.intermediateDirectory = intermediateDirectory;
         this.server = server;
         this.loadProbability = loadProbability;
@@ -81,6 +81,7 @@ public class SortTask extends Thread{
         double roll = new Random().nextDouble();
         if(roll < this.loadProbability){
             try {
+                System.out.println("Injecting delay!");
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
