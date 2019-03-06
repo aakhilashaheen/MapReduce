@@ -58,7 +58,7 @@ public class SortTask extends Thread{
             BufferedWriter bw = new BufferedWriter(fw);
             for(Pair<String, Double> pair : files) {
                 System.out.println(pair.toString());
-                bw.write(pair.first + "\n");
+                bw.write(pair.toString() + "\n");
             }
             bw.close();
             //Send the update to the server
@@ -89,3 +89,4 @@ public class SortTask extends Thread{
     }
 
 }
+
