@@ -90,16 +90,16 @@ public class MapTask extends Thread {
         }
         long endTime = System.currentTimeMillis();
 
-        String log = "Worker: " + this.worker.ipAddress + ":" + Integer.toString(this.worker.port) + ", " +
-                "File: " + this.inputFile + ", " +
-                "Word count: " + wordCount + ", " +
-                "Elapsed time: " + Long.toString(endTime - startTime) + "\n";
-//        String log = "Worker: " + this.worker.ipAddress;
-        System.out.println(log);
         try {
+            String log = "Worker: " + this.worker.ipAddress + ":" + Integer.toString(this.worker.port) + ", " +
+                    "File: " + this.inputFile + ", " +
+                    "Word count: " + wordCount + ", " +
+                    "Elapsed time: " + Long.toString(endTime - startTime) + "\n";
             FileWriter fw = new FileWriter(logging_dir + this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(log);
+            System.out.println(log);
+            bw.close();
 
         } catch (Exception e) { e.printStackTrace(); }
 
