@@ -83,7 +83,7 @@ public class WorkerHandler implements WorkerNodeService.Iface{
 
         taskQueue = new ConcurrentLinkedQueue<>();
         this.loadProbability = loadProbability;
-        WorkerTaskQueueHandler watcher = new WorkerTaskQueueHandler(this,taskQueue, server);
+        WorkerTaskQueueHandler watcher = new WorkerTaskQueueHandler(this,taskQueue, server, self);
         watcher.start();
         // call enroll on superNode to enroll.
         protocol = serverClient.enroll(self);

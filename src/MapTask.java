@@ -10,6 +10,7 @@ import java.util.*;
 import java.time.*;
 import java.lang.Thread;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MapTask extends Thread {
 
@@ -17,15 +18,18 @@ public class MapTask extends Thread {
     private String inputFile, outputFile;
     private static String input_dir = "input_dir/";
     private static String intermediate_dir = "intermediate_dir/";
+    private static String logging_dir = "logging_dir";
     private static String inputFileReceived = "";
     private AtomicInteger timeTakenToProcess;
     private static Node server;
+    private static Node worker;
     private double loadProbability;
-    public MapTask(String iF, HashSet<String> p, HashSet<String> n, Node server, double loadProbability, AtomicInteger timeTakenToProcessRequest) {
+    public MapTask(String iF, HashSet<String> p, HashSet<String> n, Node server, Node worker, double loadProbability, AtomicInteger timeTakenToProcessRequest) {
         this.positives = p;
         this.negatives = n;
         this.inputFile = input_dir+iF;
         this.server = server;
+        this.worker = worker;
         inputFileReceived = iF;
         this.timeTakenToProcess = timeTakenToProcessRequest;
         this.loadProbability = loadProbability;
@@ -37,6 +41,7 @@ public class MapTask extends Thread {
     }
 
     public void countSentiment() {
+        int wordCount = 0;
         double pSentiment = 0, nSentiment = 0;
         long startTime = System.currentTimeMillis();
         injectDelay();
@@ -54,7 +59,7 @@ public class MapTask extends Thread {
                     }
                     word.trim();
                     //System.out.println(word);
-
+                    wordCount++;
                     if(!word.equals("") && positives.contains(word))
                         pSentiment++;
                     else if(!word.equals("") && negatives.contains(word))
@@ -67,7 +72,7 @@ public class MapTask extends Thread {
         this.outputFile = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
 	    + "_" + Instant.now().toString() + ".txt";
         try {
-            FileWriter fw = new FileWriter("intermediate_dir/" + this.outputFile);
+            FileWriter fw = new FileWriter(this.intermediate_dir + this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
             double sentiment = (pSentiment - nSentiment)/(pSentiment + nSentiment);
             String output = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
@@ -85,6 +90,17 @@ public class MapTask extends Thread {
 
         }
         long endTime = System.currentTimeMillis();
+        try {
+            FileWriter fw = new FileWriter(this.logging_dir + this.outputFile);
+            BufferedWriter bw = new BufferedWriter(fw);
+            String log = "Worker: " + this.worker.ipAddress + ":" + Integer.toString(this.worker.port) + ", " +
+                    "File: " + this.inputFile + ", " +
+                    "Word count: " + wordCount + ", " +
+                    "Elapsed time: " + Long.toString(endTime - startTime) + "\n";
+            bw.write(log);
+
+        } catch (Exception e) { e.printStackTrace(); }
+
         this.timeTakenToProcess.addAndGet((int) (endTime-startTime));
     }
 

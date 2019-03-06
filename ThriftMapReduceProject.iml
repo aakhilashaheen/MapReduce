@@ -15,5 +15,6 @@
     <orderEntry type="library" name="biz.enef:slogging-slf4j_2.12:0.5.2" level="project" />
     <orderEntry type="library" name="Thrift" level="project" />
     <orderEntry type="library" name="java-1.8" level="project" />
+    <orderEntry type="library" name="libthrift-0.9.1" level="project" />
   </component>
 </module>
