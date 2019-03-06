@@ -56,7 +56,7 @@ public class WorkerTaskQueueHandler extends Thread {
                 System.out.println(task);
                 if(task != null){
                    // injectDelay();
-                  MapTask handler = new MapTask(task,positives,negatives,server);
+                  MapTask handler = new MapTask(task,positives,negatives,server,instance.loadProbability,instance.timeTakenToMap);
                   handler.start();
                 }
             } catch(Exception e) {
@@ -66,14 +66,5 @@ public class WorkerTaskQueueHandler extends Thread {
         }
     }
 
-    private void injectDelay(){
-        double roll = rand.nextDouble();
-        if(roll < instance.loadProbability){
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+
 }

@@ -9,7 +9,9 @@ import java.net.InetAddress;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+/*The entry point for worker node which handles map and sort tasks
 
+ */
 public class WorkerHandler implements WorkerNodeService.Iface{
 
     Node self;
@@ -20,10 +22,16 @@ public class WorkerHandler implements WorkerNodeService.Iface{
     AtomicInteger mapTasksReceived =  new AtomicInteger(0);
     AtomicInteger mapTasksRejected = new AtomicInteger(0);
     AtomicInteger mapTasksProcessd = new AtomicInteger(0);
+    AtomicInteger timeTakenToMap = new AtomicInteger(0);
+    AtomicInteger timeTakenToSort = new AtomicInteger(0);
+
+    /*This takes the file for mapping and either processes it or rejects it.
+    If being processed, it places it into a worker queue for processing
+     */
     @Override
     public boolean mapTask(String inputFilename) throws TException {
         //Received the task for mapping
-        System.out.println("Worker received the file for mapping "+inputFilename);
+        System.out.println("Time taken to process map jobs so far :" +timeTakenToMap.longValue());
         if(shouldRejectTheTask()){
             System.out.println("Map tasks rejected " + mapTasksRejected.incrementAndGet());
             return false;
@@ -34,21 +42,25 @@ public class WorkerHandler implements WorkerNodeService.Iface{
             System.out.println("Map tasks processed " + mapTasksProcessd.incrementAndGet());
 
         }
+
         return true;
     }
 
+    /* Rejects the task on the basis of scheduling protocol and loadProbability*/
     public boolean shouldRejectTheTask(){
-        Random rand = new Random();
-        return(rand.nextDouble() > loadProbability ? false : true);
+        if(protocol == 1) {
+            Random rand = new Random();
+            return (rand.nextDouble() > loadProbability ? false : true);
+        }
+        return false;
     }
 
+    /*Launches the sort task in a thread*/
     @Override
     public String sortTask(String intermediateFilesFolder) throws TException {
-        //Received the task for mapping
-        //if(shouldRejectTheTask())
-        //    return "";
-        SortTask task = new SortTask(intermediateFilesFolder, server);
+        SortTask task = new SortTask(intermediateFilesFolder, server, loadProbability,timeTakenToSort);
         task.sortFiles();
+        System.out.println("Time taken to process sort jobs so far :" +timeTakenToSort);
         return task.getOutputFile();
     }
 

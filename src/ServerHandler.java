@@ -21,8 +21,8 @@ public class ServerHandler implements ServerService.Iface{
     private static final String inputDirectoryPath = "input_dir/";
     private static final String intermediateDirectoryPath = "intermediate_dir";
     private static final String outputDirectoryPath = "output_dir";
-    private int countOfMapJobsPerInput = 0;
-    private AtomicInteger countOfCompletedMapJobsPerInput = new AtomicInteger(0);
+    private int countOfMapJobsPerInput = 0; // counter for the number of tasks required
+    private AtomicInteger countOfCompletedMapJobsPerInput = new AtomicInteger(0); // Synchronised counter for completed tasks
     private ExecutorService executor = Executors.newFixedThreadPool(10);
     private String intermediateDirectoryForJobInProcess = "";
     private static String outFileForJob = "";
@@ -34,19 +34,20 @@ public class ServerHandler implements ServerService.Iface{
     @Override
     public int enroll(Node node) throws TException {
        computeNodes.add(node);
-	System.out.println("Succesfully registered the node"+node.ipAddress);
+	System.out.println("Successfully registered the node"+node.ipAddress);
 	return schedulingPolicy;
     }
 
     @Override
     public String mapReduceJob(String inputDirectorytoBeProcessed) throws TException {
+        long startTime = System.currentTimeMillis();
         if(this.jobInProgress){
             System.out.println("A job is in process currently, please try again");
             return "";
         }
         this.jobInProgress = true;
         File inputDirectory = new File(inputDirectorytoBeProcessed);
-        System.out.println("Received inputput directory for sentiment analysis "+ inputDirectory.getName());
+        System.out.println("Received input directory for sentiment analysis "+ inputDirectory.getName());
         countOfMapJobsPerInput = inputDirectory.listFiles().length;
         for(File inputFile : inputDirectory.listFiles()){
             Runnable worker = new MapTaskSender(computeNodes,inputFile.getName());
@@ -62,22 +63,25 @@ public class ServerHandler implements ServerService.Iface{
             }
 
         }
+        long endTime = System.currentTimeMillis();
         resetServerCounters();
-        System.out.println("Output file received at the ,mapReduceJobFunction" + outFileForJob);
+        System.out.println("Time take to execute the job is: " +(endTime-startTime));
+
         return outFileForJob ;
     }
 
     private void resetServerCounters(){
         jobInProgress = false;
         countOfCompletedMapJobsPerInput.set(0);
+        for(File file: new File(intermediateDirectoryPath).listFiles())
+            if (!file.isDirectory())
+                file.delete();
 
     }
 
     //If the count of the mapTasksToBeProcessed is equal to the MapJobsFinished, start the sort task
     @Override
     public void completedMapTask(String inputFile, String intermediateDirectory) throws TException {
-        System.out.println("Received completed map task call");
-        System.out.println(countOfCompletedMapJobsPerInput);
         if(countOfCompletedMapJobsPerInput.incrementAndGet() == countOfMapJobsPerInput) {
 
             intermediateDirectoryForJobInProcess = intermediateDirectory;
@@ -88,7 +92,6 @@ public class ServerHandler implements ServerService.Iface{
     //If the job has finished, this is called by the worker nodes
     @Override
     public void completedSortTask(String outputFile) throws TException {
-        System.out.println("Sort task completed" + outputFile);
         this.outFileForJob = outputFile;
          this.jobInProgress = false;
     }

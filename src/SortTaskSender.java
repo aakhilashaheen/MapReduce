@@ -27,7 +27,6 @@ public class SortTaskSender extends Thread {
     }
 
     public void sendSortTask(){
-        System.out.println("REceived call for sort task");
         try{
             TTransport computeTransport = new TSocket(workerNode.ipAddress, workerNode.port);
             computeTransport.open();

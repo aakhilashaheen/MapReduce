@@ -8,15 +8,20 @@ import java.io.*;
 import java.nio.Buffer;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SortTask extends Thread{
     private String intermediateDirectory;
     private String outputFile;
     private Node server;
+    private double loadProbability ;
+    private AtomicInteger timeTakenToPrcess;
 
-    public SortTask(String intermediateDirectory, Node server) {
+    public SortTask(String intermediateDirectory, Node server, double loadProbability, AtomicInteger timeTakenToProcess) {
         this.intermediateDirectory = intermediateDirectory;
         this.server = server;
+        this.loadProbability = loadProbability;
+        this.timeTakenToPrcess = timeTakenToProcess;
     }
 
     @Override
@@ -25,8 +30,9 @@ public class SortTask extends Thread{
     }
 
     public void sortFiles() {
+        long startTime = System.currentTimeMillis();
+        injectDelay();
         File[] listOfFiles = (new File("intermediate_dir")).listFiles();
-        System.out.println("Number of intermediate files is"+listOfFiles.length);
         for(int i = 0 ; i < listOfFiles.length;i++){
             System.out.println(listOfFiles[i]);
         }
@@ -63,9 +69,23 @@ public class SortTask extends Thread{
             server.completedSortTask(outputFile);
             serverTransport.close();
         } catch (Exception e) { }
+        long endTime = System.currentTimeMillis();
+        this.timeTakenToPrcess.addAndGet((int) (endTime-startTime));
     }
 
     public String getOutputFile() {
         return this.outputFile;
     }
+
+    private void injectDelay(){
+        double roll = new Random().nextDouble();
+        if(roll < this.loadProbability){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
