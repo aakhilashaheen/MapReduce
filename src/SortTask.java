@@ -1,17 +1,14 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.nio.Buffer;
 import java.time.Instant;
 import java.util.*;
 
 public class SortTask extends Thread{
-    private List<String> intermediateFiles;
+    private String intermediateDirectory;
     private String outputFile;
 
-    public SortTask(List<String> iFs) {
-        this.intermediateFiles = iFs;
+    public SortTask(String intermediateDirectory) {
+        this.intermediateDirectory = intermediateDirectory;
     }
 
     @Override
@@ -20,10 +17,17 @@ public class SortTask extends Thread{
     }
 
     public void sortFiles() {
+        File[] listOfFiles = (new File("intermediate_dir")).listFiles();
+        System.out.println("Number of intermediate files is"+listOfFiles.length);
+        for(int i = 0 ; i < listOfFiles.length;i++){
+            System.out.println(listOfFiles[i]);
+        }
+        ArrayList<String> intermediateFiles = new ArrayList<>(listOfFiles.length);
         LinkedList<Pair<String, Double>> files = new LinkedList<Pair<String, Double>>();
-        for(String filename : intermediateFiles) {
+        for(File intermediateFile : listOfFiles) {
             try {
-                FileReader fr = new FileReader("intermediate_dir/" + filename);
+
+                FileReader fr = new FileReader(intermediateFile);
                 BufferedReader br = new BufferedReader(fr);
                 //System.out.println("Reading file " + filename);
                 String line = br.readLine();
@@ -33,7 +37,7 @@ public class SortTask extends Thread{
                 //System.out.println(pair.toString());
             } catch (Exception e) { }
         }
-        Collections.sort(files, (p1, p2) -> (int) Math.signum(p1.second - p2.second));
+        Collections.sort(files, (p1, p2) -> (int) Math.signum(p2.second - p1.second));
         this.outputFile = "output_dir/" + Instant.now().toString() + ".txt";
         try {
             FileWriter fw = new FileWriter(this.outputFile);

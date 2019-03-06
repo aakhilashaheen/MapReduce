@@ -9,7 +9,7 @@ public class MapTaskMWE {
     public MapTaskMWE() {
         positives = new HashSet<>();
         try {
-            FileReader fr = new FileReader("positive.txt");
+            FileReader fr = new FileReader("data/positive.txt");
             BufferedReader br = new BufferedReader(fr);
             String line = null;
             while((line = br.readLine()) != null) {
@@ -20,7 +20,7 @@ public class MapTaskMWE {
 
         negatives = new HashSet<>();
         try {
-            FileReader fr = new FileReader("negative.txt");
+            FileReader fr = new FileReader("data/negative.txt");
             BufferedReader br = new BufferedReader(fr);
             String line = null;
             while((line = br.readLine()) != null) {

@@ -6,22 +6,17 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
+/* A client program that when run connects to the server running at the given port. This submits the input directory for sentiment analysis and outputs
+an output directory which contains the ordered list of files based on their sentiment scores.
+ */
 public class Client {
-    Scanner sc;
-
     TTransport serverTransport;
     ServerService.Client server;
-
-    final static String defaultDir = "./data/"; //default data directory
-
-    //Connect to the superNode
-    public Client(Machine serverInfo) throws TException {
-        sc = new Scanner(System.in);
+    //Connect to the Server
+    public Client(Node serverInfo) throws TException {
         serverTransport = new TSocket(serverInfo.ipAddress, serverInfo.port);
     }
 
@@ -40,11 +35,11 @@ public class Client {
 
     public static void main(String[] args) {
         if(args.length < 2) {
-            System.err.println("Usage: java Client <server> <port>");
+            System.err.println("Usage: java Client <serverIp> <serverPort>");
             return;
         }
         try {
-            Machine serverInfo = new Machine();
+            Node serverInfo = new Node();
             serverInfo.ipAddress = args[0];
             serverInfo.port = Integer.parseInt(args[1]);
 
@@ -56,24 +51,17 @@ public class Client {
             }
 
             System.out.println("Contacted server at " + serverInfo.ipAddress + ":" + serverInfo.port);
-            System.out.println("\n\n -------- Welcome to the Terminal for Map Reduce --------\n\n");
-    /*        Scanner scan = new Scanner(System.in);
-            System.out.println("Enter the number of files to process");*/
-/*
-            int n = scan.nextInt();
-            List<String> inputFiles = new ArrayList<>();
-            for( int i = 0; i < n ; i++){
-                inputFiles.add("input_dir/" + scan.next());
-            }*/
+            System.out.println("\n\n -------- Welcome to the Terminal for Sentiment Analysis--------\n\n");
+            String directoryToBeProcessed = args[2];
 
-            File[] listOfFiles = (new File("input_dir")).listFiles();
-            List<String> inputFiles = new ArrayList<>();
-            for(File file : listOfFiles) {
-                inputFiles.add("input_dir/" + file.getName());
+            File inputDirectory = new File(directoryToBeProcessed);
+
+            if(!inputDirectory.isDirectory()){
+                System.out.println("No input directory exists at " +directoryToBeProcessed);
+                return;
             }
 
-
-            client.submitJob(inputFiles);
+            client.submitJob(directoryToBeProcessed);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -84,21 +72,12 @@ public class Client {
 
     /* From the assignment description the job server will receive only one job at a time
     */
-    private boolean submitJob(List<String> inputFiles) throws TException {
-        List<String> legitFiles = new ArrayList<>();
-        //check for existence of file
-        for(String inputFile : inputFiles){
-            File file = new File(inputFile);
-            if(!file.exists() || file.isDirectory()) {
-                System.out.println("Not a file or is a directory" + file.getName());
-            } else {
-                legitFiles.add(inputFile);
-            }
-        }
+    private boolean submitJob(String directoryToBeProcessed) throws TException {
 
-        String result = server.mapReduceJob(legitFiles);
 
-        if(result.equals("NULL")) {
+        String result = server.mapReduceJob(directoryToBeProcessed);
+
+        if(result.equals("")) {
             System.out.println("Job failed");
             return false;
         } else {

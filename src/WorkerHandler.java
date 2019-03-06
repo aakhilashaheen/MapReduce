@@ -6,15 +6,14 @@ import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.*;
 
 import java.net.InetAddress;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Worker implements ComputeNodeService.Iface{
+public class WorkerHandler implements WorkerNodeService.Iface{
 
-    Machine self;
-    Machine server;
+    Node self;
+    Node server;
     double loadProbability = 0.0;
     int protocol = 0 ; //Default 0 : random scheduling protocol, 1: load balancing protocol
     ConcurrentLinkedQueue<String> taskQueue;
@@ -22,57 +21,57 @@ public class Worker implements ComputeNodeService.Iface{
     AtomicInteger mapTasksRejected = new AtomicInteger(0);
     AtomicInteger mapTasksProcessd = new AtomicInteger(0);
     @Override
-    public String mapTask(String inputFilename) throws TException {
+    public boolean mapTask(String inputFilename) throws TException {
         //Received the task for mapping
         System.out.println("Worker received the file for mapping "+inputFilename);
-        String outputfileName = "";
-        System.out.println("Map tasks received " + mapTasksReceived.incrementAndGet());
-        if(!shouldRejectTheTask()){
-            synchronized (taskQueue){
-                taskQueue.add(inputFilename);
-                System.out.println("Map tasks processed " + mapTasksProcessd.incrementAndGet());
-                outputfileName = inputFilename+"sentiment";
-            }
-        } else {
+        if(shouldRejectTheTask()){
             System.out.println("Map tasks rejected " + mapTasksRejected.incrementAndGet());
+            return false;
         }
-        return outputfileName;
+        System.out.println("Map tasks received " + mapTasksReceived.incrementAndGet());
+        synchronized (taskQueue){
+            taskQueue.add(inputFilename);
+            System.out.println("Map tasks processed " + mapTasksProcessd.incrementAndGet());
+
+        }
+        return true;
     }
 
     public boolean shouldRejectTheTask(){
         Random rand = new Random();
         return(rand.nextDouble() > loadProbability ? false : true);
     }
+
     @Override
-    public String sortTask(List<String> intermediateFilenames) throws TException {
+    public String sortTask(String intermediateFilesFolder) throws TException {
         //Received the task for mapping
         //if(shouldRejectTheTask())
         //    return "";
-        SortTask task = new SortTask(intermediateFilenames);
+        SortTask task = new SortTask(intermediateFilesFolder);
         task.sortFiles();
         return task.getOutputFile();
     }
 
     /* Constructor for a Server, a Thrift connection is made to the server as well */
-    public Worker(String serverIP, Integer serverPort, Integer port, double loadProbability) throws Exception {
+    public WorkerHandler(String serverIP, Integer serverPort, Integer port, double loadProbability) throws Exception {
         // connect to the server as a client
         TTransport serverTransport = new TSocket(serverIP, serverPort);
         serverTransport.open();
         TProtocol serverProtocol = new TBinaryProtocol(new TFramedTransport(serverTransport));
         ServerService.Client serverClient = new ServerService.Client(serverProtocol);
 
-        this.server = new Machine();
+        this.server = new Node();
         this.server.ipAddress = serverIP;
         this.server.port = serverPort;
 
         //Create a Machine data type representing ourselves
-        self = new Machine();
+        self = new Node();
         self.ipAddress = InetAddress.getLocalHost().getHostName().toString();
         self.port = port;
 
         taskQueue = new ConcurrentLinkedQueue<>();
         this.loadProbability = loadProbability;
-        TaskQueueWatcher watcher = new TaskQueueWatcher(this,taskQueue);
+        WorkerTaskQueueHandler watcher = new WorkerTaskQueueHandler(this,taskQueue, server);
         watcher.start();
         // call enroll on superNode to enroll.
         protocol = serverClient.enroll(self);
@@ -87,7 +86,7 @@ public class Worker implements ComputeNodeService.Iface{
         TServerTransport serverTransport = new TServerSocket(self.port);
         TTransportFactory factory = new TFramedTransport.Factory();
 
-        ComputeNodeService.Processor processor = new ComputeNodeService.Processor<>(this);
+        WorkerNodeService.Processor processor = new WorkerNodeService.Processor<>(this);
 
         //Set Server Arguments
         TThreadPoolServer.Args serverArgs = new TThreadPoolServer.Args(serverTransport);
@@ -112,7 +111,7 @@ public class Worker implements ComputeNodeService.Iface{
             //port number used by this node.
             Integer port = Integer.parseInt(args[2]);
 
-            Worker server = new Worker(serverIP, serverPort,port, loadProbability);
+            WorkerHandler server = new WorkerHandler(serverIP, serverPort,port, loadProbability);
 
             //spin up server
             server.start();

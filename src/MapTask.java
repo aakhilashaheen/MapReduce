@@ -1,3 +1,9 @@
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
+
 import java.lang.*;
 import java.io.*;
 import java.util.*;
@@ -8,10 +14,16 @@ public class MapTask extends Thread {
 
     private HashSet<String> positives, negatives;
     private String inputFile, outputFile;
-    public MapTask(String iF, HashSet<String> p, HashSet<String> n) {
+    private static String input_dir = "input_dir/";
+    private static String intermediate_dir = "intermediate_dir/";
+    private static String inputFileReceived = "";
+    private static Node server;
+    public MapTask(String iF, HashSet<String> p, HashSet<String> n,Node server) {
         this.positives = p;
         this.negatives = n;
-        this.inputFile = iF;
+        this.inputFile = input_dir+iF;
+        this.server = server;
+        inputFileReceived = iF;
     }
 
     @Override
@@ -62,7 +74,16 @@ public class MapTask extends Thread {
             System.out.println("Output: " + output);
             bw.write(output);
             bw.close();
-        } catch (Exception e) { }
+            //Send the update to the server
+            TTransport serverTransport = new TSocket(server.ipAddress, server.port);
+            serverTransport.open();
+            TProtocol serverProtocol = new TBinaryProtocol(new TFramedTransport(serverTransport));
+            ServerService.Client server = new ServerService.Client(serverProtocol);
+            server.completedMapTask(inputFileReceived, outputFile);
+            serverTransport.close();
+        } catch (Exception e) {
+
+        }
     }
 
     public String getOutputFile() {

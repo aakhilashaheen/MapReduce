@@ -4,19 +4,18 @@ import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class MapTaskSender implements Runnable {
 
-    private List<Machine> nodes;
-    private ConcurrentLinkedQueue<String> inputFiles;
+    private List<Node> nodes;
 
-    public MapTaskSender(List<Machine> computeNodes, ConcurrentLinkedQueue<String> inputFiles){
+    private String inputFile;
+
+    public MapTaskSender(List<Node> computeNodes, String inputFile){
         this.nodes = computeNodes;
-        this.inputFiles = inputFiles;
+        this.inputFile = inputFile;
     }
 
     @Override
@@ -27,31 +26,22 @@ public class MapTaskSender implements Runnable {
     }
 
     private void sendRpcCall() {
-        String outputFile = "";
-        String inputFile ;
-            if(!inputFiles.isEmpty()) {
-                inputFile = inputFiles.remove();
-                if(inputFile!= null){
-                    while(outputFile.equals("")){
-                        Random rand = new Random();
-                        int index = rand.nextInt(nodes.size());
-                        Machine m = nodes.get(index);
-                        try{
-                            TTransport computeTransport = new TSocket(m.ipAddress, m.port);
-                            computeTransport.open();
-                            TProtocol computeProtocol = new TBinaryProtocol(new TFramedTransport(computeTransport));
-                            ComputeNodeService.Client computeNode  = new ComputeNodeService.Client(computeProtocol);
-                            outputFile = computeNode.mapTask(inputFile);
-                            computeTransport.close();
-                        }catch(Exception e){
-                            e.printStackTrace();
-                        }
-                }
-
-
-
+        boolean inputFileBeingProcessed = false;
+            while(!inputFileBeingProcessed) {
+                Random rand = new Random();
+                int index = rand.nextInt(nodes.size());
+                Node m = nodes.get(index);
+                try{
+                    TTransport computeTransport = new TSocket(m.ipAddress, m.port);
+                    computeTransport.open();
+                    TProtocol computeProtocol = new TBinaryProtocol(new TFramedTransport(computeTransport));
+                    WorkerNodeService.Client workerNode  = new WorkerNodeService.Client(computeProtocol);
+                    inputFileBeingProcessed = workerNode.mapTask(inputFile);
+                    computeTransport.close();
+                }catch(Exception e){
+                    e.printStackTrace();
                 }
             }
-
     }
+
 }

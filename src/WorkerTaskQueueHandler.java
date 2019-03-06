@@ -4,17 +4,18 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class TaskQueueWatcher extends Thread {
+public class WorkerTaskQueueHandler extends Thread {
     private final ConcurrentLinkedQueue<String> requests; //synchronized
-    private final Worker instance;
+    private final WorkerHandler instance;
     Random rand;
     private static HashSet<String> positives,negatives;
+    private Node server;
 
-    public TaskQueueWatcher(Worker instance,ConcurrentLinkedQueue<String> tasks) {
+    public WorkerTaskQueueHandler(WorkerHandler instance, ConcurrentLinkedQueue<String> tasks, Node server) {
         this.requests = tasks;
         this.instance = instance;
         rand = new Random();
-
+        this.server = server;
         //Initiate positive and negative files
         positives = new HashSet<>();
         try {
@@ -55,7 +56,7 @@ public class TaskQueueWatcher extends Thread {
                 System.out.println(task);
                 if(task != null){
                    // injectDelay();
-                  MapTask handler = new MapTask(task,positives,negatives);
+                  MapTask handler = new MapTask(task,positives,negatives,server);
                   handler.start();
                 }
             } catch(Exception e) {
