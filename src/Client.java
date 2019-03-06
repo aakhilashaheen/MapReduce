@@ -78,7 +78,7 @@ public class Client {
         String result = server.mapReduceJob(directoryToBeProcessed);
 
         if(result.equals("")) {
-            System.out.println("Job failed");
+            System.out.println("Job failed or a job is in process currently");
             return false;
         } else {
             System.out.println("Output file located at :\n    " + result); //just the filename, no paths allowed

@@ -1,3 +1,9 @@
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
+
 import java.io.*;
 import java.nio.Buffer;
 import java.time.Instant;
@@ -6,9 +12,11 @@ import java.util.*;
 public class SortTask extends Thread{
     private String intermediateDirectory;
     private String outputFile;
+    private Node server;
 
-    public SortTask(String intermediateDirectory) {
+    public SortTask(String intermediateDirectory, Node server) {
         this.intermediateDirectory = intermediateDirectory;
+        this.server = server;
     }
 
     @Override
@@ -47,6 +55,13 @@ public class SortTask extends Thread{
                 bw.write(pair.first + "\n");
             }
             bw.close();
+            //Send the update to the server
+            TTransport serverTransport = new TSocket(server.ipAddress, server.port);
+            serverTransport.open();
+            TProtocol serverProtocol = new TBinaryProtocol(new TFramedTransport(serverTransport));
+            ServerService.Client server = new ServerService.Client(serverProtocol);
+            server.completedSortTask(outputFile);
+            serverTransport.close();
         } catch (Exception e) { }
     }
 

@@ -47,7 +47,7 @@ public class WorkerHandler implements WorkerNodeService.Iface{
         //Received the task for mapping
         //if(shouldRejectTheTask())
         //    return "";
-        SortTask task = new SortTask(intermediateFilesFolder);
+        SortTask task = new SortTask(intermediateFilesFolder, server);
         task.sortFiles();
         return task.getOutputFile();
     }

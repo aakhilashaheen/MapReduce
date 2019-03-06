@@ -25,10 +25,10 @@ public class ServerHandler implements ServerService.Iface{
     private AtomicInteger countOfCompletedMapJobsPerInput = new AtomicInteger(0);
     private ExecutorService executor = Executors.newFixedThreadPool(10);
     private String intermediateDirectoryForJobInProcess = "";
-    private String outFileForJob = "";
+    private static String outFileForJob = "";
     Node self;
     List<Node> computeNodes = new ArrayList<>();
-    boolean jobInProgress ;
+    private static boolean jobInProgress = false ;
 
 
     @Override
@@ -40,7 +40,11 @@ public class ServerHandler implements ServerService.Iface{
 
     @Override
     public String mapReduceJob(String inputDirectorytoBeProcessed) throws TException {
-        jobInProgress = true;
+        if(this.jobInProgress){
+            System.out.println("A job is in process currently, please try again");
+            return "";
+        }
+        this.jobInProgress = true;
         File inputDirectory = new File(inputDirectorytoBeProcessed);
         System.out.println("Received inputput directory for sentiment analysis "+ inputDirectory.getName());
         countOfMapJobsPerInput = inputDirectory.listFiles().length;
@@ -50,16 +54,29 @@ public class ServerHandler implements ServerService.Iface{
             executor.execute(worker);
         }
 
-        while(!jobInProgress){
+        while(this.jobInProgress){
+            try{
+                Thread.sleep(1000L);
+            }catch(Exception e){
+
+            }
 
         }
+        resetServerCounters();
+        System.out.println("Output file received at the ,mapReduceJobFunction" + outFileForJob);
         return outFileForJob ;
+    }
+
+    private void resetServerCounters(){
+        jobInProgress = false;
+        countOfCompletedMapJobsPerInput.set(0);
+
     }
 
     //If the count of the mapTasksToBeProcessed is equal to the MapJobsFinished, start the sort task
     @Override
     public void completedMapTask(String inputFile, String intermediateDirectory) throws TException {
-        System.out.println("REceived completed map task call");
+        System.out.println("Received completed map task call");
         System.out.println(countOfCompletedMapJobsPerInput);
         if(countOfCompletedMapJobsPerInput.incrementAndGet() == countOfMapJobsPerInput) {
 
@@ -71,8 +88,9 @@ public class ServerHandler implements ServerService.Iface{
     //If the job has finished, this is called by the worker nodes
     @Override
     public void completedSortTask(String outputFile) throws TException {
-        outFileForJob = outputFile;
-      jobInProgress = false;
+        System.out.println("Sort task completed" + outputFile);
+        this.outFileForJob = outputFile;
+         this.jobInProgress = false;
     }
 
     /* Randomly assigns the sort job to one of the worker Nodes
