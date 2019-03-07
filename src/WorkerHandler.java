@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 /*The entry point for worker node which handles map and sort tasks
 
@@ -22,10 +23,10 @@ public class WorkerHandler implements WorkerNodeService.Iface{
     ConcurrentLinkedQueue<String> taskQueue;
     AtomicLong mapTasksReceived =  new AtomicLong(0);
     AtomicLong mapTasksRejected = new AtomicLong(0);
-    AtomicLong mapTasksProcessd = new AtomicLong(0);
+    AtomicInteger mapTasksProcessd = new AtomicInteger(0);
     AtomicLong timeTakenToMap = new AtomicLong(0);
     AtomicLong timeTakenToSort = new AtomicLong(0);
-     MapTaskStatistics mapTaskStatistics;
+    MapTaskStatistics mapTaskStatistics;
     /*This takes the file for mapping and either processes it or rejects it.
     If being processed, it places it into a worker queue for processing
      */
@@ -79,7 +80,7 @@ public class WorkerHandler implements WorkerNodeService.Iface{
         self = new Node();
         self.ipAddress = InetAddress.getLocalHost().getHostName().toString();
         self.port = port;
-        MapTaskStatistics mapTaskStatistics = new MapTaskStatistics();
+        MapTaskStatistics mapTaskStatistics = new MapTaskStatistics(mapTasksProcessd, timeTakenToMap);
         this.mapTaskStatistics = mapTaskStatistics;
         taskQueue = new ConcurrentLinkedQueue<>();
         this.loadProbability = loadProbability;
@@ -90,6 +91,9 @@ public class WorkerHandler implements WorkerNodeService.Iface{
         System.out.println("Worker node protocol received from server");
 
         serverTransport.close();
+
+        WorkerStatistics display = new WorkerStatistics(mapTasksProcessd);
+        display.start();
     }
     //Begin Thrift Server instance for a Node and listen for connections on our port
     private void start() throws TException {

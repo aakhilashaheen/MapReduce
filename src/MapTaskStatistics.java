@@ -2,9 +2,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MapTaskStatistics {
-    private  AtomicInteger numberOfMapTasksProcessed = new AtomicInteger(0);
-    private  AtomicLong timeTakenToExecuteMapTasks = new AtomicLong(0);
+    private  AtomicInteger numberOfMapTasksProcessed;
+    private  AtomicLong timeTakenToExecuteMapTasks;
 
+    public MapTaskStatistics(AtomicInteger numberOfMapTasksProcessed, AtomicLong timeTakenToExecuteMapTasks) {
+        this.numberOfMapTasksProcessed = numberOfMapTasksProcessed;
+        this.timeTakenToExecuteMapTasks = timeTakenToExecuteMapTasks;
+    }
 
     public int getNumberOfMapTaskssProcessed(){
         return numberOfMapTasksProcessed.intValue();
@@ -15,12 +19,14 @@ public class MapTaskStatistics {
     }
 
     public  int incrementAndGetCounts(){
-        return numberOfMapTasksProcessed.getAndIncrement();
+        numberOfMapTasksProcessed.getAndIncrement();
+        return numberOfMapTasksProcessed.intValue();
     }
 
     public  long incrementAndGetTimeTakenForMapTasks(long timeTaken){
         System.out.println("Adding time"+timeTaken);
-        return timeTakenToExecuteMapTasks.getAndAdd(timeTaken);
+        timeTakenToExecuteMapTasks.getAndAdd(timeTaken);
+        return timeTakenToExecuteMapTasks.longValue();
     }
 
     public void resetCountersMapJobCounters(){

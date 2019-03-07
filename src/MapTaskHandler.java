@@ -91,8 +91,9 @@ public class MapTaskHandler extends Thread {
             e.printStackTrace();
         }
 
-        System.out.println("Total number of Map tasks processed by this worker : " + mapTaskStatistics.incrementAndGetCounts());
-        System.out.println("Total time taken for Map tasks by this worker so long: " + mapTaskStatistics.incrementAndGetTimeTakenForMapTasks(endTime-startTime));
+        mapTaskStatistics.incrementAndGetCounts();
+        //System.out.println("Total number of Map tasks processed by this worker : " + mapTaskStatistics.incrementAndGetCounts());
+        //System.out.println("Total time taken for Map tasks by this worker so long: " + mapTaskStatistics.incrementAndGetTimeTakenForMapTasks(endTime-startTime));
 
     }
 
