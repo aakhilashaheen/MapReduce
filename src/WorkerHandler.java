@@ -24,7 +24,7 @@ public class WorkerHandler implements WorkerNodeService.Iface{
     AtomicLong mapTasksProcessd = new AtomicLong(0);
     AtomicLong timeTakenToMap = new AtomicLong(0);
     AtomicLong timeTakenToSort = new AtomicLong(0);
-    MapTaskStatistics mapTaskStatistics;
+    public static MapTaskStatistics mapTaskStatistics;
     /*This takes the file for mapping and either processes it or rejects it.
     If being processed, it places it into a worker queue for processing
      */
@@ -85,7 +85,7 @@ public class WorkerHandler implements WorkerNodeService.Iface{
         this.mapTaskStatistics = mapTaskStatistics;
         taskQueue = new ConcurrentLinkedQueue<>();
         this.loadProbability = loadProbability;
-        WorkerTaskQueueHandler watcher = new WorkerTaskQueueHandler(this,taskQueue, server, self,this.mapTaskStatistics);
+        WorkerTaskQueueHandler watcher = new WorkerTaskQueueHandler(this,taskQueue, server, self);
         watcher.start();
         // call enroll on superNode to enroll.
         protocol = serverClient.enroll(self);

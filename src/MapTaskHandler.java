@@ -22,7 +22,7 @@ public class MapTaskHandler extends Thread {
     private static Node server;
     private Node worker;
     private double loadProbability;
-    private MapTaskStatistics mapTaskStatistics;
+    private static MapTaskStatistics mapTaskStatistics;
     public MapTaskHandler(String iF, HashSet<String> p, HashSet<String> n, Node server, Node worker, double loadProbability,MapTaskStatistics mapTaskStatistics) {
         this.positives = p;
         this.negatives = n;
@@ -101,16 +101,16 @@ public class MapTaskHandler extends Thread {
                     "File: " + this.inputFile + ", " +
                     "Word count: " + wordCount + ", " +
                     "Elapsed time: " + Long.toString(endTime - startTime) + "\n";
-            FileWriter fw = new FileWriter(logging_dir + this.outputFile);
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(log);
-            System.out.println(log);
-            bw.close();
+//            FileWriter fw = new FileWriter(logging_dir + this.outputFile);
+//            BufferedWriter bw = new BufferedWriter(fw);
+//            bw.write(log);
+            //System.out.println(log);
+           // bw.close();
 
         } catch (Exception e) { e.printStackTrace(); }
 
-        //System.out.println(mapTaskStatistics.incrementAndGetCounts());
-        //System.out.println(mapTaskStatistics.incrementAndGetTimeTakenForMapTasks(endTime-startTime));
+        mapTaskStatistics.incrementAndGetCounts();
+        mapTaskStatistics.incrementAndGetTimeTakenForMapTasks(endTime-startTime);
 
     }
 
