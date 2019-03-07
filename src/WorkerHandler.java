@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 /*The entry point for worker node which handles map and sort tasks
-
  */
 public class WorkerHandler implements WorkerNodeService.Iface{
 
@@ -21,7 +20,7 @@ public class WorkerHandler implements WorkerNodeService.Iface{
     double loadProbability = 0.0;
     int protocol = 0 ; //Default 0 : random scheduling protocol, 1: load balancing protocol
     ConcurrentLinkedQueue<String> taskQueue;
-    AtomicLong mapTasksReceived =  new AtomicLong(0);
+    AtomicInteger mapTasksReceived =  new AtomicInteger(0);
     AtomicLong mapTasksRejected = new AtomicLong(0);
     AtomicInteger mapTasksProcessd = new AtomicInteger(0);
     AtomicLong timeTakenToMap = new AtomicLong(0);
@@ -40,7 +39,7 @@ public class WorkerHandler implements WorkerNodeService.Iface{
         }
         synchronized (taskQueue){
             taskQueue.add(inputFilename);
-
+            mapTasksReceived.incrementAndGet();
         }
         return true;
     }
@@ -92,7 +91,7 @@ public class WorkerHandler implements WorkerNodeService.Iface{
 
         serverTransport.close();
 
-        WorkerStatistics display = new WorkerStatistics(mapTasksProcessd);
+        WorkerStatistics display = new WorkerStatistics(mapTasksProcessd,mapTasksReceived);
         display.start();
     }
     //Begin Thrift Server instance for a Node and listen for connections on our port

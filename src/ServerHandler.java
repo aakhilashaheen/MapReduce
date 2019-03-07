@@ -14,7 +14,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
-
+/* The main server handler which receives jobs for map reduce and sends them to the workers parallely
+ */
 public class ServerHandler implements ServerService.Iface{
     private static int serverPort;
     private static int schedulingPolicy;
@@ -30,7 +31,8 @@ public class ServerHandler implements ServerService.Iface{
     List<Node> computeNodes = new ArrayList<>();
     private static boolean jobInProgress = false ;
 
-
+/*Used by the worker nodes to announce about them selves to the server
+ */
     @Override
     public int enroll(Node node) throws TException {
        computeNodes.add(node);
@@ -38,6 +40,8 @@ public class ServerHandler implements ServerService.Iface{
 	return schedulingPolicy;
     }
 
+    /* Receives the map reduce job and sends it to the executor service for processing. It exists when the job is completed
+     */
     @Override
     public String mapReduceJob(String inputDirectorytoBeProcessed) throws TException {
         long startTime = System.currentTimeMillis();
@@ -71,7 +75,8 @@ public class ServerHandler implements ServerService.Iface{
         System.out.println("Time for end of job"+ endTime);
         return outFileForJob ;
     }
-
+/* Used to reset the counters for the next job
+ */
     private void resetServerCounters(){
         jobInProgress = false;
         countOfCompletedMapJobsPerInput.set(0);
@@ -81,7 +86,8 @@ public class ServerHandler implements ServerService.Iface{
 
     }
 
-    //If the count of the mapTasksToBeProcessed is equal to the MapJobsFinished, start the sort task
+/*Used by the worker nodes to announce that they have completed the map job
+ */
     @Override
     public void completedMapTask(String inputFile, String intermediateDirectory) throws TException {
         if(countOfCompletedMapJobsPerInput.incrementAndGet() == countOfMapJobsPerInput) {
@@ -90,7 +96,8 @@ public class ServerHandler implements ServerService.Iface{
         }
     }
 
-    //If the job has finished, this is called by the worker nodes
+/*Used by the worker nodes to announce that they have completed the sort task
+ */
     @Override
     public void completedSortTask(String outputFile) throws TException {
         this.outFileForJob = outputFile;
@@ -98,7 +105,6 @@ public class ServerHandler implements ServerService.Iface{
     }
 
     /* Randomly assigns the sort job to one of the worker Nodes
-
      */
     public void submitSortJobToComputeNode(){
         Node m = computeNodes.get(0);

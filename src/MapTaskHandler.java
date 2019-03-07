@@ -10,7 +10,8 @@ import java.util.*;
 import java.time.*;
 import java.lang.Thread;
 import java.util.concurrent.atomic.AtomicLong;
-
+/* Runs the sentiment analysis on the file in another thread
+ */
 public class MapTaskHandler extends Thread {
 
     private HashSet<String> positives, negatives;

@@ -1,6 +1,8 @@
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
+/*
+Statistics class for map jobs at the worker
+ */
 public class MapTaskStatistics {
     private  AtomicInteger numberOfMapTasksProcessed;
     private  AtomicLong timeTakenToExecuteMapTasks;
