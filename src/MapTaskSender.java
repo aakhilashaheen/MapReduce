@@ -20,9 +20,9 @@ public class MapTaskSender implements Runnable {
 
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getName()+" Start ");
+      //  System.out.println(Thread.currentThread().getName()+" Start ");
         sendRpcCall();
-        System.out.println(Thread.currentThread().getName()+" End.");
+       // System.out.println(Thread.currentThread().getName()+" End.");
     }
 
     private void sendRpcCall() {

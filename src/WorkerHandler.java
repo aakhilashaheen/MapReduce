@@ -24,25 +24,22 @@ public class WorkerHandler implements WorkerNodeService.Iface{
     AtomicLong mapTasksProcessd = new AtomicLong(0);
     AtomicLong timeTakenToMap = new AtomicLong(0);
     AtomicLong timeTakenToSort = new AtomicLong(0);
-
+    MapTaskStatistics mapTaskStatistics;
     /*This takes the file for mapping and either processes it or rejects it.
     If being processed, it places it into a worker queue for processing
      */
     @Override
     public boolean mapTask(String inputFilename) throws TException {
         //Received the task for mapping
-        System.out.println("Time taken to process map jobs so far :" +timeTakenToMap.longValue());
+
         if(shouldRejectTheTask()){
-            System.out.println("Map tasks rejected " + mapTasksRejected.incrementAndGet());
+            mapTasksRejected.incrementAndGet();
             return false;
         }
-        System.out.println("Map tasks received " + mapTasksReceived.incrementAndGet());
         synchronized (taskQueue){
             taskQueue.add(inputFilename);
-            System.out.println("Map tasks processed " + mapTasksProcessd.incrementAndGet());
 
         }
-
         return true;
     }
 
@@ -58,9 +55,13 @@ public class WorkerHandler implements WorkerNodeService.Iface{
     /*Launches the sort task in a thread*/
     @Override
     public String sortTask(String intermediateFilesFolder) throws TException {
-        SortTask task = new SortTask(intermediateFilesFolder, server, loadProbability,timeTakenToSort);
+        System.out.println("Total number of Map tasks processed by this worker : " +mapTaskStatistics.getNumberOfMapTaskssProcessed());
+        System.out.println("Total number of Map tasks rejected by this worker : " +mapTasksRejected);
+        System.out.println("Total time taken for Map tasks by this worker : " + mapTaskStatistics.getTimeTakenToExecuteMapTasks());
+        SortTaskHandler task = new SortTaskHandler(intermediateFilesFolder, server, loadProbability,timeTakenToSort);
         task.sortFiles();
-        System.out.println("Time taken to process sort jobs so far :" +timeTakenToSort);
+        System.out.println("Total time taken for Sort tasks by this worker : " +timeTakenToSort);
+        mapTaskStatistics.resetCountersMapJobCounters();
         return task.getOutputFile();
     }
 
@@ -80,10 +81,11 @@ public class WorkerHandler implements WorkerNodeService.Iface{
         self = new Node();
         self.ipAddress = InetAddress.getLocalHost().getHostName().toString();
         self.port = port;
-
+        MapTaskStatistics mapTaskStatistics = new MapTaskStatistics();
+        this.mapTaskStatistics = mapTaskStatistics;
         taskQueue = new ConcurrentLinkedQueue<>();
         this.loadProbability = loadProbability;
-        WorkerTaskQueueHandler watcher = new WorkerTaskQueueHandler(this,taskQueue, server, self);
+        WorkerTaskQueueHandler watcher = new WorkerTaskQueueHandler(this,taskQueue, server, self,this.mapTaskStatistics);
         watcher.start();
         // call enroll on superNode to enroll.
         protocol = serverClient.enroll(self);

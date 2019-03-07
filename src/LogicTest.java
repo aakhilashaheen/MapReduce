@@ -45,11 +45,11 @@ public class LogicTest {
 //	File[] listOfFiles = (new File("input_dir")).listFiles();
 //	ArrayList<String> intermediateFiles = new ArrayList<>(listOfFiles.length);
 //	for(File file : listOfFiles) {
-//	    MapTask mapTask = new MapTask("input_dir/" + file.getName(), positives, negatives);
+//	    MapTaskHandler mapTask = new MapTaskHandler("input_dir/" + file.getName(), positives, negatives);
 //	    mapTask.countSentiment();
 //	    intermediateFiles.add(mapTask.getOutputFile());
 //	}
-//	SortTask sortTask = new SortTask("intermediate_dir");
+//	SortTaskHandler sortTask = new SortTaskHandler("intermediate_dir");
 //	sortTask.sortFiles();
 //	String outputFile = sortTask.getOutputFile();
     }

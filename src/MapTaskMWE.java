@@ -50,9 +50,9 @@ public class MapTaskMWE {
                         nSentiment++;
                 }
             }
-            System.out.println("Positive: " + Double.toString(pSentiment) +
-                    ", Negative: " + Double.toString(nSentiment) +
-                    ", Total: " + Double.toString(pSentiment + nSentiment));
+//            System.out.println("Positive: " + Double.toString(pSentiment) +
+//                    ", Negative: " + Double.toString(nSentiment) +
+//                    ", Total: " + Double.toString(pSentiment + nSentiment));
             br.close();
         } catch (Exception e) { }
         return (pSentiment - nSentiment)/(pSentiment + nSentiment);
@@ -61,6 +61,6 @@ public class MapTaskMWE {
     public static void main(String[] args) {
         String inputFile = args[0];
         MapTaskMWE mwe = new MapTaskMWE();
-        System.out.println("Sentiment = " + mwe.countSentiment(inputFile));
+       // System.out.println("Sentiment = " + mwe.countSentiment(inputFile));
     }
 }

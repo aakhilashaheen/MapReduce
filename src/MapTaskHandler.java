@@ -11,7 +11,7 @@ import java.time.*;
 import java.lang.Thread;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MapTask extends Thread {
+public class MapTaskHandler extends Thread {
 
     private HashSet<String> positives, negatives;
     private String inputFile, outputFile;
@@ -19,19 +19,19 @@ public class MapTask extends Thread {
     private static String intermediate_dir = "intermediate_dir/";
     private static String logging_dir = "logging_dir/";
     private static String inputFileReceived = "";
-    private static AtomicLong timeTakenToProcess;
     private static Node server;
     private Node worker;
     private double loadProbability;
-    public MapTask(String iF, HashSet<String> p, HashSet<String> n, Node server, Node worker, double loadProbability, AtomicLong timeTakenToProcessRequest) {
+    private MapTaskStatistics mapTaskStatistics;
+    public MapTaskHandler(String iF, HashSet<String> p, HashSet<String> n, Node server, Node worker, double loadProbability,MapTaskStatistics mapTaskStatistics) {
         this.positives = p;
         this.negatives = n;
         this.inputFile = input_dir+iF;
         this.server = server;
         this.worker = worker;
         inputFileReceived = iF;
-        timeTakenToProcess = timeTakenToProcessRequest;
         this.loadProbability = loadProbability;
+        this.mapTaskStatistics = mapTaskStatistics;
     }
 
     @Override
@@ -95,7 +95,7 @@ public class MapTask extends Thread {
                 "Word count: " + wordCount + ", " +
                 "Elapsed time: " + Long.toString(endTime - startTime) + "\n";
 //        String log = "Worker: " + this.worker.ipAddress;
-        System.out.println(log);
+       // System.out.println(log);
         try {
             FileWriter fw = new FileWriter(logging_dir + this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
@@ -103,7 +103,9 @@ public class MapTask extends Thread {
 
         } catch (Exception e) { e.printStackTrace(); }
 
-        timeTakenToProcess.addAndGet(endTime-startTime);
+        //System.out.println(mapTaskStatistics.incrementAndGetCounts());
+        //System.out.println(mapTaskStatistics.incrementAndGetTimeTakenForMapTasks(endTime-startTime));
+
     }
 
     public String getOutputFile() {
@@ -115,7 +117,7 @@ public class MapTask extends Thread {
         if(roll < this.loadProbability){
             try {
                 Thread.sleep(3000);
-                System.out.println("Injecting delay");
+               // System.out.println("Injecting delay");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -11,6 +11,7 @@ public class WorkerTaskQueueHandler extends Thread {
     private static HashSet<String> positives,negatives;
     private Node server;
     private Node worker;
+    private static MapTaskStatistics mapTaskStatistics;
 
     public WorkerTaskQueueHandler(WorkerHandler instance, ConcurrentLinkedQueue<String> tasks, Node server, Node worker) {
         this.requests = tasks;
@@ -18,6 +19,7 @@ public class WorkerTaskQueueHandler extends Thread {
         rand = new Random();
         this.server = server;
         this.worker = worker;
+        this.mapTaskStatistics = instance.mapTaskStatistics;
         //Initiate positive and negative files
         positives = new HashSet<>();
         try {
@@ -54,10 +56,10 @@ public class WorkerTaskQueueHandler extends Thread {
 
                 //queue is no longer empty
                 task = (String)requests.remove();
-                System.out.println(task);
+               // System.out.println(task);
                 if(task != null){
                    // injectDelay();
-                  MapTask handler = new MapTask(task, positives, negatives, server, worker, instance.loadProbability, instance.timeTakenToMap);
+                  MapTaskHandler handler = new MapTaskHandler(task, positives, negatives, server, worker, instance.loadProbability, instance.mapTaskStatistics);
                   handler.start();
                 }
             } catch(Exception e) {

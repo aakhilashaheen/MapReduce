@@ -10,14 +10,14 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SortTask extends Thread{
+public class SortTaskHandler extends Thread{
     private String intermediateDirectory;
     private String outputFile;
     private Node server;
     private double loadProbability ;
     private AtomicLong timeTakenToPrcess;
 
-    public SortTask(String intermediateDirectory, Node server, double loadProbability, AtomicLong timeTakenToProcess) {
+    public SortTaskHandler(String intermediateDirectory, Node server, double loadProbability, AtomicLong timeTakenToProcess) {
         this.intermediateDirectory = intermediateDirectory;
         this.server = server;
         this.loadProbability = loadProbability;
@@ -33,9 +33,9 @@ public class SortTask extends Thread{
         long startTime = System.currentTimeMillis();
         injectDelay();
         File[] listOfFiles = (new File("intermediate_dir")).listFiles();
-        for(int i = 0 ; i < listOfFiles.length;i++){
-            System.out.println(listOfFiles[i]);
-        }
+//        for(int i = 0 ; i < listOfFiles.length;i++){
+//            System.out.println(listOfFiles[i]);
+//        }
         ArrayList<String> intermediateFiles = new ArrayList<>(listOfFiles.length);
         LinkedList<Pair<String, Double>> files = new LinkedList<Pair<String, Double>>();
         for(File intermediateFile : listOfFiles) {
@@ -57,7 +57,7 @@ public class SortTask extends Thread{
             FileWriter fw = new FileWriter(this.outputFile);
             BufferedWriter bw = new BufferedWriter(fw);
             for(Pair<String, Double> pair : files) {
-                System.out.println(pair.toString());
+                //System.out.println(pair.toString());
                 bw.write(pair.toString() + "\n");
             }
             bw.close();
@@ -81,7 +81,7 @@ public class SortTask extends Thread{
         double roll = new Random().nextDouble();
         if(roll < this.loadProbability){
             try {
-                System.out.println("Injecting delay!");
+              //  System.out.println("Injecting delay!");
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();

@@ -51,7 +51,7 @@ public class ServerHandler implements ServerService.Iface{
         countOfMapJobsPerInput = inputDirectory.listFiles().length;
         for(File inputFile : inputDirectory.listFiles()){
             Runnable worker = new MapTaskSender(computeNodes,inputFile.getName());
-            System.out.println(inputFile.getName());
+         //   System.out.println(inputFile.getName());
             executor.execute(worker);
         }
 
