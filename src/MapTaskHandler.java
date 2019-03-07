@@ -22,7 +22,7 @@ public class MapTaskHandler extends Thread {
     private static Node server;
     private Node worker;
     private double loadProbability;
-    private static MapTaskStatistics mapTaskStatistics;
+    MapTaskStatistics mapTaskStatistics;
     public MapTaskHandler(String iF, HashSet<String> p, HashSet<String> n, Node server, Node worker, double loadProbability,MapTaskStatistics mapTaskStatistics) {
         this.positives = p;
         this.negatives = n;
@@ -43,6 +43,7 @@ public class MapTaskHandler extends Thread {
         int wordCount = 0;
         double pSentiment = 0, nSentiment = 0;
         long startTime = System.currentTimeMillis();
+        System.out.println("Start time for : "+inputFile+startTime);
         injectDelay();
         try {
             FileReader fr = new FileReader(this.inputFile);
@@ -67,7 +68,8 @@ public class MapTaskHandler extends Thread {
             }
             br.close();
         } catch (Exception e) { e.printStackTrace(); }
-
+        long endTime = System.currentTimeMillis();
+        System.out.println("End time for : "+inputFile+endTime);
         this.outputFile = this.inputFile.substring(this.inputFile.lastIndexOf("/") + 1)
 	    + "_" + Instant.now().toString() + ".txt";
         try {
@@ -88,29 +90,9 @@ public class MapTaskHandler extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        long endTime = System.currentTimeMillis();
-/*
-        String log = "Worker: " + this.worker.ipAddress + ":" + Integer.toString(this.worker.port) + ", " +
-                "File: " + this.inputFile + ", " +
-                "Word count: " + wordCount + ", " +
-                "Elapsed time: " + Long.toString(endTime - startTime) + "\n";*/
-//        String log = "Worker: " + this.worker.ipAddress;
-       // System.out.println(log);
-        try {
-            String log = "Worker: " + this.worker.ipAddress + ":" + Integer.toString(this.worker.port) + ", " +
-                    "File: " + this.inputFile + ", " +
-                    "Word count: " + wordCount + ", " +
-                    "Elapsed time: " + Long.toString(endTime - startTime) + "\n";
-//            FileWriter fw = new FileWriter(logging_dir + this.outputFile);
-//            BufferedWriter bw = new BufferedWriter(fw);
-//            bw.write(log);
-            //System.out.println(log);
-           // bw.close();
 
-        } catch (Exception e) { e.printStackTrace(); }
-
-        mapTaskStatistics.incrementAndGetCounts();
-        mapTaskStatistics.incrementAndGetTimeTakenForMapTasks(endTime-startTime);
+        System.out.println("Total number of Map tasks processed by this worker : " + mapTaskStatistics.incrementAndGetCounts());
+        System.out.println("Total time taken for Map tasks by this worker so long: " + mapTaskStatistics.incrementAndGetTimeTakenForMapTasks(endTime-startTime));
 
     }
 
@@ -123,7 +105,7 @@ public class MapTaskHandler extends Thread {
         if(roll < this.loadProbability){
             try {
                 Thread.sleep(3000);
-               // System.out.println("Injecting delay");
+                System.out.println("Injecting delay");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

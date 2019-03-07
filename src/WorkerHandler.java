@@ -8,6 +8,7 @@ import org.apache.thrift.transport.*;
 import java.net.InetAddress;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 /*The entry point for worker node which handles map and sort tasks
 
@@ -24,14 +25,14 @@ public class WorkerHandler implements WorkerNodeService.Iface{
     AtomicLong mapTasksProcessd = new AtomicLong(0);
     AtomicLong timeTakenToMap = new AtomicLong(0);
     AtomicLong timeTakenToSort = new AtomicLong(0);
-    public static MapTaskStatistics mapTaskStatistics;
+     MapTaskStatistics mapTaskStatistics;
     /*This takes the file for mapping and either processes it or rejects it.
     If being processed, it places it into a worker queue for processing
      */
     @Override
     public boolean mapTask(String inputFilename) throws TException {
         //Received the task for mapping
-
+        System.out.println("Total number of Map tasks rejected by this worker : " + mapTasksRejected);
         if(shouldRejectTheTask()){
             mapTasksRejected.incrementAndGet();
             return false;
@@ -55,9 +56,6 @@ public class WorkerHandler implements WorkerNodeService.Iface{
     /*Launches the sort task in a thread*/
     @Override
     public String sortTask(String intermediateFilesFolder) throws TException {
-        System.out.println("Total number of Map tasks processed by this worker : " +mapTaskStatistics.getNumberOfMapTaskssProcessed());
-        System.out.println("Total number of Map tasks rejected by this worker : " +mapTasksRejected);
-        System.out.println("Total time taken for Map tasks by this worker : " + mapTaskStatistics.getTimeTakenToExecuteMapTasks());
         SortTaskHandler task = new SortTaskHandler(intermediateFilesFolder, server, loadProbability,timeTakenToSort);
         task.sortFiles();
         System.out.println("Total time taken for Sort tasks by this worker : " +timeTakenToSort);
@@ -85,7 +83,7 @@ public class WorkerHandler implements WorkerNodeService.Iface{
         this.mapTaskStatistics = mapTaskStatistics;
         taskQueue = new ConcurrentLinkedQueue<>();
         this.loadProbability = loadProbability;
-        WorkerTaskQueueHandler watcher = new WorkerTaskQueueHandler(this,taskQueue, server, self);
+        WorkerTaskQueueHandler watcher = new WorkerTaskQueueHandler(this,taskQueue, server, self,this.mapTaskStatistics);
         watcher.start();
         // call enroll on superNode to enroll.
         protocol = serverClient.enroll(self);

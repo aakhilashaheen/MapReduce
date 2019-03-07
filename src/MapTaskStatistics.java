@@ -19,12 +19,12 @@ public class MapTaskStatistics {
     }
 
     public  long incrementAndGetTimeTakenForMapTasks(long timeTaken){
-
+        System.out.println("Adding time"+timeTaken);
         return timeTakenToExecuteMapTasks.getAndAdd(timeTaken);
     }
 
     public void resetCountersMapJobCounters(){
         numberOfMapTasksProcessed.set(0);
-        timeTakenToExecuteMapTasks.set(0);
+        timeTakenToExecuteMapTasks.set(0l);
     }
 }

@@ -41,6 +41,7 @@ public class ServerHandler implements ServerService.Iface{
     @Override
     public String mapReduceJob(String inputDirectorytoBeProcessed) throws TException {
         long startTime = System.currentTimeMillis();
+        System.out.println("Starting now"+ startTime);
         if(this.jobInProgress){
             System.out.println("A job is in process currently, please try again");
             return "";
@@ -57,7 +58,7 @@ public class ServerHandler implements ServerService.Iface{
 
         while(this.jobInProgress){
             try{
-                Thread.sleep(1000L);
+                Thread.sleep(10L);
             }catch(Exception e){
 
             }
@@ -65,8 +66,9 @@ public class ServerHandler implements ServerService.Iface{
         }
         long endTime = System.currentTimeMillis();
         resetServerCounters();
-        System.out.println("Time take to execute the job is: " +(endTime-startTime));
 
+        System.out.println("Time take to execute the job is: " +(endTime-startTime));
+        System.out.println("Time for end of job"+ endTime);
         return outFileForJob ;
     }
 
@@ -83,7 +85,6 @@ public class ServerHandler implements ServerService.Iface{
     @Override
     public void completedMapTask(String inputFile, String intermediateDirectory) throws TException {
         if(countOfCompletedMapJobsPerInput.incrementAndGet() == countOfMapJobsPerInput) {
-
             intermediateDirectoryForJobInProcess = intermediateDirectory;
             submitSortJobToComputeNode();
         }

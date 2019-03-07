@@ -33,9 +33,7 @@ public class SortTaskHandler extends Thread{
         long startTime = System.currentTimeMillis();
         injectDelay();
         File[] listOfFiles = (new File("intermediate_dir")).listFiles();
-//        for(int i = 0 ; i < listOfFiles.length;i++){
-//            System.out.println(listOfFiles[i]);
-//        }
+
         ArrayList<String> intermediateFiles = new ArrayList<>(listOfFiles.length);
         LinkedList<Pair<String, Double>> files = new LinkedList<Pair<String, Double>>();
         for(File intermediateFile : listOfFiles) {
@@ -70,6 +68,7 @@ public class SortTaskHandler extends Thread{
             serverTransport.close();
         } catch (Exception e) { }
         long endTime = System.currentTimeMillis();
+        System.out.println("Sort task end time" + endTime);
         this.timeTakenToPrcess.addAndGet((int) (endTime-startTime));
     }
 
@@ -85,6 +84,7 @@ public class SortTaskHandler extends Thread{
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+
             }
         }
     }
